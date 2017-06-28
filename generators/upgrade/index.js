@@ -50,6 +50,7 @@ module.exports = UpgradeGenerator.extend({
             this.currentVersion = this.config.get('jhipsterVersion');
             this.clientPackageManager = this.config.get('clientPackageManager');
             this.clientFramework = this.config.get('clientFramework');
+            this.skipClient = this.config.get('skipClient');
             this.skipInstall = this.options['skip-install'];
             this.silent = !this.options.verbose;
             this.targetVersion = this.options['target-version'];
@@ -102,7 +103,7 @@ module.exports = UpgradeGenerator.extend({
 
     _regenerate(version, callback) {
         this._generate(version, () => {
-            if (this.clientFramework === 'angular1' && version === this.latestVersion) {
+            if (!this.skipClient && this.clientFramework === 'angular1' && version === this.latestVersion) {
                 const result = this.spawnCommandSync('bower', ['install']);
                 if (result.status !== 0) {
                     this.error('bower install failed.');
@@ -308,7 +309,7 @@ module.exports = UpgradeGenerator.extend({
                 if (code !== 0) {
                     this.error(`${installCommand} failed.`);
                 }
-                if (this.clientFramework === 'angular1') {
+                if (!this.skipClient && this.clientFramework === 'angular1') {
                     this.spawnCommandSync('bower', ['install']);
                 }
                 done();
