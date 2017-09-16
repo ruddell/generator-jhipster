@@ -15,6 +15,7 @@
     "useSass": false,
     "buildTool": "maven",
     "enableTranslation": true,
+    "enableSwaggerCodegen": true,
     "nativeLanguage": "en",
     "languages": [
       "en",

@@ -15,6 +15,7 @@
     "messageBroker": false,
     "buildTool": "gradle",
     "enableSocialSignIn": false,
+    "enableSwaggerCodegen": true,
     "useSass": false,
     "applicationType": "monolith",
     "testFrameworks": [
