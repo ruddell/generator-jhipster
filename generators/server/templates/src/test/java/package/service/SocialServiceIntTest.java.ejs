@@ -402,6 +402,31 @@ public class SocialServiceIntTest {
         userRepository.delete(userToDelete);
     }
 
+    @Test
+    public void testCreateSocialUserWhereUserWithSameLoginAlreadyExist() {
+        // Setup
+        createExistingUser("FIRST_NAME_LAST_NAME",
+            "mail@mail.com",
+            "FIRST_NAME",
+            "LAST_NAME",
+            "OTHER_IMAGE_URL");
+        Connection<?> connection = createConnection("FIRST_NAME_LAST_NAME",
+            "new-email@mail.com",
+            "FIRST_NAME",
+            "LAST_NAME",
+            "IMAGE_URL",
+            "PROVIDER");
+
+        // Exercise
+        socialService.createSocialUser(connection, "fr");
+
+        //Verify
+        User userToVerify = userRepository.findOneByEmailIgnoreCase("new-email@mail.com").get();
+        assertThat(userToVerify.getLogin()).isEqualTo("first_name_last_name1");
+        // Teardown
+        userRepository.delete(userToVerify);
+    }
+
     private Connection<?> createConnection(String login,
                                            String email,
                                            String firstName,

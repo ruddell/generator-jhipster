@@ -158,12 +158,24 @@ public class SocialService {
      *         Because provider like Google or Facebook didn't provide login or login like "12099388847393"
      */
     private String getLoginDependingOnProviderId(UserProfile userProfile, String providerId) {
+        String username;
         switch (providerId) {
             case "twitter":
-                return userProfile.getUsername().toLowerCase();
+                username = userProfile.getUsername().toLowerCase();
+                break;
             default:
-                return userProfile.getFirstName().toLowerCase().replace(" ", "_") + "_" + userProfile.getLastName().toLowerCase().replace(" ", "_");
+                // check to make sure a user with the same first and last name doesn't exist
+                username = userProfile.getFirstName().toLowerCase().replace(" ", "_") + "_" + userProfile.getLastName().toLowerCase().replace(" ", "_");
+                break;
         }
+        // check to make sure the username is unique
+        String originalUserName = username;
+        int suffix = 0;
+        while (userRepository.findOneByLogin(username).isPresent()) {
+            suffix += 1;
+            username = originalUserName + suffix;
+        }
+        return username;
     }
 
     private void createSocialConnection(String login, Connection<?> connection) {
