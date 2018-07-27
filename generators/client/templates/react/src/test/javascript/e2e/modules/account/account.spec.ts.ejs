@@ -120,7 +120,7 @@ describe('Account', () => {
     registerPage = await navBarPage.getRegisterPage();
     expect(await registerPage.getTitle()).to.eq(registerPageTitle);
 
-    await registerPage.autoSignUpUsing('user_test', 'admin@localhost.com', 'user_test');
+    await registerPage.autoSignUpUsing('user_test', 'admin@localhost.jh', 'user_test');
     const toast = getToastByInnerText('Registration saved! Please check your email for confirmation.');
     await waitUntilDisplayed(toast);
 
@@ -223,12 +223,8 @@ describe('Account', () => {
     await passwordPage.get();
     expect(await passwordPage.getTitle()).to.eq(passwordPageTitle);
 
-    await passwordPage.clearCurrentPassword();
-    await passwordPage.setCurrentPassword('new_password');
-    await passwordPage.setNewPassword('admin');
-    await passwordPage.setConfirmPassword('admin');
-    await passwordPage.save();
-
+    await passwordPage.autoChangePassword('new_password', 'admin', 'admin');
+    
     await navBarPage.autoSignOut();
   });
 
@@ -259,7 +255,7 @@ describe('Account', () => {
     await navBarPage.getSettingsPage();
     expect(await settingsPage.getTitle()).to.eq(settingsPageTitle);
 
-    await settingsPage.email.sendKeys('.com');
+    await settingsPage.email.sendKeys('.jh');
     await settingsPage.save();
 
     const toast = getToastByInnerText('Email is already in use!');
