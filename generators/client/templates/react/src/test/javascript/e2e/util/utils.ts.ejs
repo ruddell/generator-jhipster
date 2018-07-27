@@ -20,20 +20,20 @@ export const isHidden = (selector: ElementFinder) => {
 /**
  * Wait until this page is displayed.
  */
-export const waitUntilDisplayed = (selector: ElementFinder, classname = '', timeout = waitUntilDisplayedTimeout) => {
+export const waitUntilDisplayed = async (selector: ElementFinder, classname = '', timeout = waitUntilDisplayedTimeout) => {
   if (!checkSelectorExist(selector)) return;
 
-  browser.wait(
+  await browser.wait(
     isDisplayed(selector),
     timeout,
     `Failed while waiting for "${selector.locator()}" of Page Object Class '${classname}' to display.`
   );
 };
 
-export const waitUntilHidden = (selector: ElementFinder, classname = '', timeout = waitUntilDisplayedTimeout) => {
+export const waitUntilHidden = async (selector: ElementFinder, classname = '', timeout = waitUntilDisplayedTimeout) => {
   if (!checkSelectorExist(selector)) return;
 
-  browser.wait(
+  await browser.wait(
     isHidden(selector),
     timeout,
     `Failed while waiting for "${selector.locator()}" of Page Object Class '${classname}' to be hidden.`

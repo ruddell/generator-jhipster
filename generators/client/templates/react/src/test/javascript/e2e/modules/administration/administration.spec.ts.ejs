@@ -27,18 +27,19 @@ const expect = chai.expect;
 describe('Administration', () => {
   let navBarPage: NavBarPage;
 
-  before(() => {
-    browser.get('/');
+  before(async () => {
+    await browser.get('/');
     navBarPage = new NavBarPage(true);
     <%_ if (authenticationType !== 'oauth2') { _%>
-    navBarPage.autoSignIn();
+    await navBarPage.autoSignIn();
+    await waitUntilDisplayed(navBarPage.adminMenu);
     <%_ } _%>
   });
 
   <%_ if (authenticationType !== 'oauth2') { _%>
   describe('User management', () => {
     it('should load user management', async () => {
-      navBarPage.clickOnAdminMenuItem('user-management');
+      await navBarPage.clickOnAdminMenuItem('user-management');
       // Title should be equal to 'Users'
       expect(await element(by.className('userManagement-page-heading')).isPresent()).to.be.true;
     });
@@ -46,32 +47,31 @@ describe('Administration', () => {
   <%_ } _%>
 
   it('should load metrics', async () => {
-    navBarPage.clickOnAdminMenuItem('metrics');
-    waitUntilDisplayed(element(by.className('metrics-page-heading')));
+    await navBarPage.clickOnAdminMenuItem('metrics');
     expect(await element(by.className('metrics-page-heading')).getText()).to.eq('Application Metrics');
   });
 
   it('should load health', async () => {
-    navBarPage.clickOnAdminMenuItem('health');
+    await navBarPage.clickOnAdminMenuItem('health');
     expect(await element(by.className('health-page-heading')).getText()).to.eq('Health Checks');
   });
 
   it('should load configuration', async () => {
-    navBarPage.clickOnAdminMenuItem('configuration');
+    await navBarPage.clickOnAdminMenuItem('configuration');
     expect(await element(by.className('configuration-page-heading')).getText()).to.eq('Configuration');
   });
 
 <%_ if (databaseType !== 'no' && databaseType !== 'cassandra') { _%>
   it('should load audits', async () => {
-    navBarPage.clickOnAdminMenuItem('audits');
+    await navBarPage.clickOnAdminMenuItem('audits');
     expect(await element(by.className('audits-page-heading')).getText()).to.eq('Audits');
   });
 
 <%_ } _%>
   it('should load logs', async () => {
-    navBarPage.clickOnAdminMenuItem('logs');
+    await navBarPage.clickOnAdminMenuItem('logs');
     expect(await element(by.className('logs-page-heading')).getText()).to.eq('Logs');
   });
 
-  after(() => navBarPage.autoSignOut());
+  after(async () => await navBarPage.autoSignOut());
 });

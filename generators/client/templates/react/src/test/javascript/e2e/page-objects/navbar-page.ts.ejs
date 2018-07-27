@@ -29,78 +29,77 @@ export default class NavBarPage extends BasePage {
   }
 
   <%_ if (authenticationType !== 'oauth2') { _%>
-  getPasswordPage() {
-    this.clickOnAccountMenuItem('password');
+  async getPasswordPage() {
+    await this.clickOnAccountMenuItem('password');
     return new PasswordPage();
   }
 
-  getSettingsPage() {
-    this.clickOnAccountMenuItem('settings');
+  async getSettingsPage() {
+    await this.clickOnAccountMenuItem('settings');
     return new SettingsPage();
   }
 
-  getRegisterPage() {
-    this.clickOnAccountMenu();
-    this.clickOnTabMenu('#/register');
+  async getRegisterPage() {
+    await this.clickOnAccountMenu();
+    await this.clickOnTabMenu('#/register');
     return new RegisterPage();
   }
   <%_ } _%>
 
-  getSignInPage() {
-    this.clickOnAccountMenu();
+  async getSignInPage() {
+    await this.clickOnAccountMenu();
     <%_ if (authenticationType !== 'oauth2') { _%>
-    this.clickOnTabMenu('#/login');
+    await this.clickOnTabMenu('#/login');
     <%_ } else { _%>
     this.loginItem.click();
     <%_ } _%>
     return new SignInPage();
   }
 
-  getEntityPage(entityName: string) {
-    this.clickOnEntityMenu();
-    return this.clickOnEntity(entityName);
+  async getEntityPage(entityName: string) {
+    await this.clickOnEntityMenu();
+    await this.clickOnEntity(entityName);
   }
 
-  clickOnTabMenu(item: string) {
-  return this.selector
+  async clickOnTabMenu(item: string) {
+    await this.selector
     .$('#header-tabs')
     .$(`.dropdown-item[href="${item}"]`)
     .click();
   }
 
-  clickOnAccountMenu() {
-    return this.accountMenu.click();
+  async clickOnAccountMenu() {
+    await this.accountMenu.click();
   }
 
-  clickOnAccountMenuItem(item: string) {
-    this.accountMenu.click();
-    return this.selector.$(`.dropdown-item[href="#/account/${item}"`).click();
+  async clickOnAccountMenuItem(item: string) {
+    await this.accountMenu.click();
+    await this.selector.$(`.dropdown-item[href="#/account/${item}"`).click();
   }
 
-  clickOnAdminMenuItem(item: string) {
-    this.adminMenu.click();
-    return this.selector.$(`.dropdown-item[href="#/admin/${item}"]`).click();
+  async clickOnAdminMenuItem(item: string) {
+    await this.adminMenu.click();
+    await this.selector.$(`.dropdown-item[href="#/admin/${item}"]`).click();
   }
 
-  clickOnEntityMenu() {
-    return this.entityMenu.click();
+  async clickOnEntityMenu() {
+    await this.entityMenu.click();
   }
 
-  clickOnEntity(entityName: string) {
-    return this.selector.$(`.dropdown-item[href="#/entity/${entityName}"]`).click();
+  async clickOnEntity(entityName: string) {
+    await this.selector.$(`.dropdown-item[href="#/entity/${entityName}"]`).click();
   }
 
-  autoSignIn() {
-    this.signInPage.get();
+  async autoSignIn() {
+    await this.signInPage.get();
     <%_ if (authenticationType !== 'oauth2') { _%>
-    this.signInPage.autoSignInUsing('admin', 'admin');
+    await this.signInPage.autoSignInUsing('admin', 'admin');
     <%_ } else { _%>
     this.signInPage.loginWithOAuth('admin', 'admin');
     <%_ } _%>
-    return this.signInPage.waitUntilHidden();
   }
 
-  autoSignOut() {
-    this.signInPage.autoSignOut();
+  async autoSignOut() {
+    await this.signInPage.autoSignOut();
   }
 }
