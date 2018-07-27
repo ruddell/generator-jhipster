@@ -22,8 +22,8 @@ export default class <%= entityClass %>ComponentsPage {
     createButton: ElementFinder = element(by.id('jh-create-entity'));
     title: ElementFinder = element(by.id('<%= entityFileName %>-heading'));
 
-    clickOnCreateButton() {
-        return this.createButton.click();
+    async clickOnCreateButton() {
+        await this.createButton.click();
     }
 
     getTitle() {
