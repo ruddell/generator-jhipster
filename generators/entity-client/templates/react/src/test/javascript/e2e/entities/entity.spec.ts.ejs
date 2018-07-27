@@ -20,6 +20,7 @@
 import { browser<% if ( fieldsContainInstant || fieldsContainZonedDateTime ) { %>, protractor<% } %> } from 'protractor';
 
 import NavBarPage from './../../<%= entityParentPathAddition %>page-objects/navbar-page';
+import SignInPage from './../../<%= entityParentPathAddition %>page-objects/signin-page';
 import <%= entityClass %>ComponentsPage from './<%= entityFileName %>.page-object';
 import <%= entityClass %>UpdatePage from './<%= entityFileName%>-update.page-object';
 import { waitUntilDisplayed, waitUntilHidden } from '../../util/utils';
@@ -46,6 +47,7 @@ const expect = chai.expect;
 describe('<%= entityClass %> e2e test', () => {
 
     let navBarPage: NavBarPage;
+    let signInPage: SignInPage;
     let <%= entityInstance %>UpdatePage: <%= entityClass %>UpdatePage;
     let <%= entityInstance %>ComponentsPage: <%= entityClass %>ComponentsPage;
     <%_ if (fieldsContainBlobOrImage) { _%>
@@ -57,7 +59,8 @@ describe('<%= entityClass %> e2e test', () => {
         await browser.get('/');
         navBarPage = new NavBarPage();
         <%_ if (authenticationType !== 'oauth2') { _%>
-        await navBarPage.autoSignIn();
+        signInPage = await navBarPage.getSignInPage();
+        await signInPage.autoSignInUsing('admin', 'admin');
         <%_ } else { _%>
         navBarPage.getSignInPage();
         <%_ } _%>

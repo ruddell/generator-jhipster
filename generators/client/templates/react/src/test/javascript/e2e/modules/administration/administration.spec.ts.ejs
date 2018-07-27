@@ -20,18 +20,21 @@
 import { element, by, browser } from 'protractor';
 
 import NavBarPage from '../../page-objects/navbar-page';
+import SignInPage from '../../page-objects/signin-page';
 import { waitUntilDisplayed } from '../../util/utils';
 
 const expect = chai.expect;
 
 describe('Administration', () => {
   let navBarPage: NavBarPage;
+  let signInPage: SignInPage;
 
   before(async () => {
     await browser.get('/');
     navBarPage = new NavBarPage(true);
     <%_ if (authenticationType !== 'oauth2') { _%>
-    await navBarPage.autoSignIn();
+    signInPage = await navBarPage.getSignInPage();
+    await signInPage.autoSignInUsing('admin', 'admin');
     await waitUntilDisplayed(navBarPage.adminMenu);
     <%_ } _%>
   });
