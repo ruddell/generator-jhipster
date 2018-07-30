@@ -28,6 +28,7 @@ import SettingsPage from '../../page-objects/settings-page';
 import {
   getToastByInnerText,
   getUserDeactivatedButtonByLogin,
+  sortByModifiedDate,
   waitUntilDisplayed,
   waitUntilHidden
 } from '../../util/utils';
@@ -157,6 +158,7 @@ describe('Account', () => {
     await navBarPage.autoSignIn();
     await signInPage.waitUntilHidden();
     await navBarPage.clickOnAdminMenuItem('user-management');
+    await sortByModifiedDate();
     const deactivatedButton = getUserDeactivatedButtonByLogin('user_test');
     await waitUntilDisplayed(deactivatedButton);
     await deactivatedButton.click();

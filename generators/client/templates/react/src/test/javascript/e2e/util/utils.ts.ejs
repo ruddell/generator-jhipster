@@ -40,6 +40,9 @@ export const waitUntilHidden = async (selector: ElementFinder, classname = '', t
   );
 };
 
+export const sortByModifiedDate = async () =>
+  await element(by.id('modified-date-sort')).click();
+
 export const getUserDeactivatedButtonByLogin = (login: string): ElementFinder =>
   element(by.css('table > tbody')).element(by.id(login)).element(by.buttonText('Deactivated'));
 
