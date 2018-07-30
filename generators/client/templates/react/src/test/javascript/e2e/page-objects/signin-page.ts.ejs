@@ -53,12 +53,12 @@ export default class SignInPage extends BasePage {
     await this.login();
   }
   <%_ } else { _%>
-  loginWithOAuth(username: string, password: string) {
-    this.username.isPresent().then(() => {
-        this.setUserName(username);
-        this.setPassword(password);
-        return this.login();
-    });
+  async loginWithOAuth(username: string, password: string) {
+    if (await this.username.isPresent()) {
+      await this.setUserName(username);
+      await this.setPassword(password);
+      await this.login
+    }
   }
   <%_ } _%>
 

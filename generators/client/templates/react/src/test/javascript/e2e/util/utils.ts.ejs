@@ -40,6 +40,7 @@ export const waitUntilHidden = async (selector: ElementFinder, classname = '', t
   );
 };
 
+<%_ if (authenticationType !== 'oauth2') { _%>
 export const sortByModifiedDate = async () =>
   await element(by.id('modified-date-sort')).click();
 
@@ -49,3 +50,4 @@ export const getUserDeactivatedButtonByLogin = (login: string): ElementFinder =>
 export const getToastByInnerText = (text: string): ElementFinder =>
   element(by.css('.toastify-container'))
     .element(by.cssContainingText('div[role=alert]', text));
+<%_ } _%>
