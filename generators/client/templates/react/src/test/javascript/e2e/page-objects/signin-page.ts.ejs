@@ -23,7 +23,7 @@ export default class SignInPage extends BasePage {
 
   async get() {
     await browser.get('#/login');
-    // this.waitUntilDisplayed();
+    await this.waitUntilDisplayed();
   }
 
   async getTitle() {
