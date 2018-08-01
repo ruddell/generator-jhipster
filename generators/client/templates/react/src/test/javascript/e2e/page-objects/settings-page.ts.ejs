@@ -1,4 +1,4 @@
-import { $, browser, ElementFinder } from 'protractor';
+import { $, browser, ElementFinder, Key } from 'protractor';
 import { promise } from 'selenium-webdriver';
 
 import BasePage from './base-component';
@@ -38,7 +38,9 @@ export default class SettingsPage extends BasePage {
     return this.email.sendKeys(email);
   }
 
-  clearEmail() {
+  async clearEmail() {
+    await this.email.sendKeys(Key.chord(Key.CONTROL, 'a'));
+    await this.email.sendKeys(Key.BACK_SPACE);
     return this.email.clear();
   }
 

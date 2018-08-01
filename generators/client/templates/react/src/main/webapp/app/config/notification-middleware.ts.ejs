@@ -17,17 +17,36 @@
  limitations under the License.
 -%>
 
+import React from 'react';
 import { isPromise<% if (enableTranslation) { %>, translate<% } %> } from 'react-jhipster';
 import { toast } from 'react-toastify';
+import * as sanitizeHtml from 'sanitize-html';
 
 const addErrorAlert = (message, key?, data?) => {
   <%_ if (enableTranslation) { _%>
   key = key ? key : message;
   toast.error(translate(key, data));
   <%_ } else { _%>
-  toast.error(message);
+  toast.error(sanitizeAlert(message));
   <%_ } _%>
 };
+
+<%_ if (!enableTranslation) { _%>
+const sanitizeAlert = message => {
+  if (/<[a-z][\s\S]*>/i.test(message)) {
+    // String contains HTML tags. Allow only a super restricted set of tags and attributes
+    const content = sanitizeHtml(message, {
+      allowedTags: ['b', 'i', 'em', 'strong', 'a', 'br', 'hr'],
+      allowedAttributes: {
+        a: ['href', 'target']
+      }
+    });
+    return React.createElement('span', { dangerouslySetInnerHTML: { __html: content } });
+  }
+  return message;
+};
+<%_ } _%>
+
 export default () => next => action => {
   // If not a promise, continue on
   if (!isPromise(action.payload)) {
@@ -42,7 +61,11 @@ export default () => next => action => {
   return next(action)
     .then(response => {
       if (action.meta && action.meta.successMessage) {
+        <%_ if (enableTranslation) { _%>
         toast.success(action.meta.successMessage);
+        <%_ } else { _%>
+        toast.success(sanitizeAlert(action.meta.successMessage));
+        <%_ } _%>
       } else if (response && response.action && response.action.payload && response.action.payload.headers) {
         const headers = response.action.payload.headers;
         let alert: string = null;
@@ -69,7 +92,11 @@ export default () => next => action => {
     })
     .catch(error => {
       if (action.meta && action.meta.errorMessage) {
+        <%_ if (enableTranslation) { _%>
         toast.error(action.meta.errorMessage);
+        <%_ } else { _%>
+        toast.error(sanitizeAlert(action.meta.errorMessage));
+        <%_ } _%>
       } else if (error && error.response) {
         const response = error.response;
         const data = response.data;
@@ -131,7 +158,11 @@ export default () => next => action => {
           }
         }
       } else if (error && error.message) {
+        <%_ if (enableTranslation) { _%>
         toast.error(error.message);
+        <%_ } else { _%>
+        toast.error(sanitizeAlert(error.message));
+        <%_ } _%>
       } else {
         toast.error('Unknown error!');
       }
