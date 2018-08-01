@@ -57,7 +57,7 @@ export default class SignInPage extends BasePage {
     if (await this.username.isPresent()) {
       await this.setUserName(username);
       await this.setPassword(password);
-      await this.login
+      await this.login();
     }
   }
   <%_ } _%>

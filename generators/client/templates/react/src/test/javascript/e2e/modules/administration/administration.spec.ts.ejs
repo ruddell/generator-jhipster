@@ -32,11 +32,13 @@ describe('Administration', () => {
   before(async () => {
     await browser.get('/');
     navBarPage = new NavBarPage(true);
-    <%_ if (authenticationType !== 'oauth2') { _%>
     signInPage = await navBarPage.getSignInPage();
+    <%_ if (authenticationType !== 'oauth2') { _%>
     await signInPage.autoSignInUsing('admin', 'admin');
-    await waitUntilDisplayed(navBarPage.adminMenu);
+    <%_ } else { _%>
+    await signInPage.loginWithOAuth('admin', 'admin');
     <%_ } _%>
+    await waitUntilDisplayed(navBarPage.adminMenu);
   });
 
   <%_ if (authenticationType !== 'oauth2') { _%>
