@@ -56,6 +56,9 @@ describe('Account', () => {
     await browser.get('/');
     navBarPage = new NavBarPage(true);
     signInPage = await navBarPage.getSignInPage();
+    <%_ if (authenticationType !== 'oauth2') { _%>
+    await signInPage.waitUntilDisplayed();
+    <%_ } _%>
   });
 
   it('should fail to login with bad password', async () => {
@@ -107,6 +110,7 @@ describe('Account', () => {
     await signInPage.loginWithOAuth('admin', 'admin');
     const success = element(by.className('alert-success'));
     await waitUntilDisplayed(success);
+    
     // Success alert should appear in home page
     expect(await success.isPresent()).to.be.true;
     <%_ } _%>
