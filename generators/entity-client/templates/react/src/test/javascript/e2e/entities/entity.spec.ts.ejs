@@ -23,7 +23,7 @@ import NavBarPage from './../../<%= entityParentPathAddition %>page-objects/navb
 import SignInPage from './../../<%= entityParentPathAddition %>page-objects/signin-page';
 import <%= entityClass %>ComponentsPage from './<%= entityFileName %>.page-object';
 import <%= entityClass %>UpdatePage from './<%= entityFileName%>-update.page-object';
-import { waitUntilDisplayed, waitUntilHidden } from '../../util/utils';
+import { waitUntilDisplayed, waitUntilHidden } from '../../<%= entityParentPathAddition %>util/utils';
 <%_ if (fieldsContainBlobOrImage) { _%>
 import path from 'path';
 <%_ } _%>
