@@ -34,8 +34,8 @@ describe('Administration', () => {
     navBarPage = new NavBarPage(true);
     signInPage = await navBarPage.getSignInPage();
     <%_ if (authenticationType !== 'oauth2') { _%>
-    
     await signInPage.waitUntilDisplayed();
+
     await signInPage.setUserName('admin');
     await signInPage.setPassword('admin');
     await signInPage.login();
@@ -46,12 +46,10 @@ describe('Administration', () => {
   });
 
   <%_ if (authenticationType !== 'oauth2') { _%>
-  describe('User management', () => {
-    it('should load user management', async () => {
-      await navBarPage.clickOnAdminMenuItem('user-management');
-      // Title should be equal to 'Users'
-      expect(await element(by.className('userManagement-page-heading')).isPresent()).to.be.true;
-    });
+  it('should load user management', async () => {
+    await navBarPage.clickOnAdminMenuItem('user-management');
+    // Title should be equal to 'Users'
+    expect(await element(by.className('userManagement-page-heading')).isPresent()).to.be.true;
   });
   <%_ } _%>
 
