@@ -12,19 +12,16 @@ const selector: ElementFinder = $('#app-header');
 export default class NavBarPage extends BasePage {
   selector: ElementFinder;
   signInPage: SignInPage;
-  adminMenu: ElementFinder;
+  adminMenu: ElementFinder = this.selector.$('#admin-menu');
   accountMenu: ElementFinder = this.selector.$('#account-menu');
   entityMenu: ElementFinder = this.selector.$('#entity-menu');
   <%_ if (authenticationType === 'oauth2') { _%>
   loginItem: ElementFinder = this.selector.$('#login-item');
   <%_ } _%>
 
-  constructor(asAdmin?: Boolean) {
+  constructor() {
     super(selector);
     this.selector = selector;
-    if (asAdmin) {
-      this.adminMenu = this.selector.$('#admin-menu');
-    }
     this.signInPage = new SignInPage();
   }
 
