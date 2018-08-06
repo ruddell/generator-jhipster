@@ -31,7 +31,7 @@ describe('Administration', () => {
 
   before(async () => {
     await browser.get('/');
-    navBarPage = new NavBarPage(true);
+    navBarPage = new NavBarPage();
     signInPage = await navBarPage.getSignInPage();
     <%_ if (authenticationType !== 'oauth2') { _%>
     await signInPage.waitUntilDisplayed();
@@ -42,7 +42,7 @@ describe('Administration', () => {
     await signInPage.waitUntilHidden();
 
     <%_ } _%>
-    await waitUntilDisplayed(navBarPage.entityMenu);
+    await waitUntilDisplayed(navBarPage.adminMenu);
   });
 
   <%_ if (authenticationType !== 'oauth2') { _%>
