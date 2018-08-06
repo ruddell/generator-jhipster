@@ -76,5 +76,7 @@ describe('Administration', () => {
     expect(await element(by.className('logs-page-heading')).getText()).to.eq('Logs');
   });
 
-  after(async () => await navBarPage.autoSignOut());
+  after(async () => {
+    await navBarPage.autoSignOut()
+  });
 });
