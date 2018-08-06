@@ -42,7 +42,7 @@ describe('Administration', () => {
     await signInPage.waitUntilHidden();
 
     <%_ } _%>
-    await waitUntilDisplayed(navBarPage.adminMenu);
+    await waitUntilDisplayed(navBarPage.entityMenu);
   });
 
   <%_ if (authenticationType !== 'oauth2') { _%>
