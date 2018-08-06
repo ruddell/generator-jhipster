@@ -34,7 +34,13 @@ describe('Administration', () => {
     navBarPage = new NavBarPage(true);
     signInPage = await navBarPage.getSignInPage();
     <%_ if (authenticationType !== 'oauth2') { _%>
-    await signInPage.autoSignInUsing('admin', 'admin');
+    
+    await signInPage.waitUntilDisplayed();
+    await signInPage.setUserName('admin');
+    await signInPage.setPassword('admin');
+    await signInPage.login();
+    await signInPage.waitUntilHidden();
+
     <%_ } _%>
     await waitUntilDisplayed(navBarPage.adminMenu);
   });
