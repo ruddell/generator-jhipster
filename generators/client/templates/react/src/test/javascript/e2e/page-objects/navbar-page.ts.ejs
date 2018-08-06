@@ -53,7 +53,7 @@ export default class NavBarPage extends BasePage {
     <%_ } else { _%>
     await this.loginItem.click();
     <%_ } _%>
-    return new SignInPage();
+    return this.signInPage;
   }
 
   async getEntityPage(entityName: string) {
