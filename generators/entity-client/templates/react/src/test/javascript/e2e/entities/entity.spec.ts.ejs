@@ -59,8 +59,8 @@ describe('<%= entityClass %> e2e test', () => {
         navBarPage = new NavBarPage();
         signInPage = await navBarPage.getSignInPage();
         <%_ if (authenticationType !== 'oauth2') { _%>
-
         await signInPage.waitUntilDisplayed();
+        
         await signInPage.setUserName('admin');
         await signInPage.setPassword('admin');
         await signInPage.login();
