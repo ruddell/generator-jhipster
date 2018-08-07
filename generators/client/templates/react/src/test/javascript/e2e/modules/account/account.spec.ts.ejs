@@ -179,7 +179,9 @@ describe('Account', () => {
     await signInPage.get();
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
-    await signInPage.autoSignInUsing('user_test', 'user_test');
+    await signInPage.setUserName('user_test');
+    await signInPage.setPassword('user_test');
+    await signInPage.login();
     await signInPage.waitUntilHidden();
 
     // Login page should close when login success
@@ -191,7 +193,9 @@ describe('Account', () => {
     await signInPage.get();
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
-    await signInPage.autoSignInUsing('admin', 'admin');
+    await signInPage.setUserName('admin');
+    await signInPage.setPassword('admin');
+    await signInPage.login();
     await signInPage.waitUntilHidden();
 
     passwordPage = await navBarPage.getPasswordPage();
@@ -230,7 +234,9 @@ describe('Account', () => {
     await signInPage.get();
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
-    await signInPage.autoSignInUsing('admin', 'new_password');
+    await signInPage.setUserName('admin');
+    await signInPage.setPassword('new_password');
+    await signInPage.login();
     await signInPage.waitUntilHidden();
     expect(await signInPage.isHidden()()).to.be.true;
 
