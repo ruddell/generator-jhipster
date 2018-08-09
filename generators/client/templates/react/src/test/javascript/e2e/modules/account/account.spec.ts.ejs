@@ -99,7 +99,6 @@ describe('Account', () => {
     await signInPage.setUserName('admin');
     await signInPage.setPassword('admin');
     await signInPage.login();
-
     await signInPage.waitUntilHidden();
 
     // Login page should close when login success
@@ -119,6 +118,7 @@ describe('Account', () => {
   <%_ if (authenticationType !== 'oauth2') { _%>
   it('should be able to sign up', async () => {
     registerPage = await navBarPage.getRegisterPage();
+    await registerPage.waitUntilDisplayed();
     expect(await registerPage.getTitle()).to.eq(registerPageTitle);
 
     await registerPage.autoSignUpUsing('user_test', 'admin@localhost.jh', 'user_test');
@@ -146,7 +146,7 @@ describe('Account', () => {
   it('should not be able to sign up if email already taken', async () => {
     expect(await registerPage.getTitle()).to.eq(registerPageTitle);
 
-    await registerPage.username.sendKeys('_jhi');
+    await registerPage.setUserName('_jhi');
     await registerPage.save();
     const toast = getToastByInnerText('Email is already in use!');
     await waitUntilDisplayed(toast);
@@ -155,18 +155,28 @@ describe('Account', () => {
     expect(await toast.isPresent()).to.be.true;
   });
 
-  it('should activate the new registered user', async () => {
-    await navBarPage.autoSignIn();
+  it('should load user management', async () => {
+    await signInPage.get();
+
+    await signInPage.setUserName('admin');
+    await signInPage.setPassword('admin');
+    await signInPage.login();
     await signInPage.waitUntilHidden();
+ 
+    const title = element(by.id('user-management-page-heading'));
+    await waitUntilDisplayed(navBarPage.adminMenu);
 
     await navBarPage.clickOnAdminMenuItem('user-management');
+    await waitUntilDisplayed(title);
+ 
+    expect(await title.isPresent()).to.be.true;
+  });
 
+  it('should activate the new registered user', async () => {
     const modifiedDateSortButton = getModifiedDateSortButton();
-    await waitUntilDisplayed(modifiedDateSortButton);
     await modifiedDateSortButton.click();
 
     const deactivatedButton = getUserDeactivatedButtonByLogin('user_test');
-    await waitUntilDisplayed(deactivatedButton);
     await deactivatedButton.click();
     await waitUntilHidden(deactivatedButton);
 
@@ -189,7 +199,7 @@ describe('Account', () => {
     await navBarPage.autoSignOut();
   });
 
-  it('should fail to update password when using incorrect current password', async () => {
+  it('should login with admin account', async () => {
     await signInPage.get();
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
@@ -198,10 +208,15 @@ describe('Account', () => {
     await signInPage.login();
     await signInPage.waitUntilHidden();
 
+    expect(await signInPage.isHidden()()).to.be.true;
+  });
+
+  it('should fail to update password when using incorrect current password', async () => {
     passwordPage = await navBarPage.getPasswordPage();
+    await passwordPage.waitUntilDisplayed();
     expect(await passwordPage.getTitle()).to.eq(passwordPageTitle);
 
-    await passwordPage.autoChangePassword('wrong_current_password', 'new_password', 'new_password');
+    await passwordPage.autoChangePassword('bad_password', 'new_password', 'new_password');
     <%_ if (enableTranslation) { _%>
     const toast = getToastByInnerText('An error has occurred! The password could not be changed.');
     <% } else { %>
@@ -215,6 +230,7 @@ describe('Account', () => {
 
   it('should be able to update password', async () => {
     await browser.refresh();
+    await passwordPage.waitUntilDisplayed();
     expect(await passwordPage.getTitle()).to.eq(passwordPageTitle);
    
     await passwordPage.autoChangePassword('admin', 'new_password', 'new_password');
@@ -249,11 +265,19 @@ describe('Account', () => {
     await navBarPage.autoSignOut();
   });
 
-  it('should be able to change settings', async () => {
+  it('should login with user_test account', async () => {
     await signInPage.get();
-    await signInPage.autoSignInUsing('user_test', 'user_test');
+    expect(await signInPage.getTitle()).to.eq(loginPageTitle);
+
+    await signInPage.setUserName('user_test');
+    await signInPage.setPassword('user_test');
+    await signInPage.login();
     await signInPage.waitUntilHidden();
 
+    expect(await signInPage.isHidden()()).to.be.true;
+  });
+
+  it('should be able to change settings', async () => {
     settingsPage = await navBarPage.getSettingsPage();
     expect(await settingsPage.getTitle()).to.eq(settingsPageTitle);
 
@@ -272,11 +296,11 @@ describe('Account', () => {
   it('should not be able to change settings if email already exists', async () => {
     await navBarPage.autoSignIn();
     await signInPage.waitUntilHidden();
-    await settingsPage.get();
 
+    await settingsPage.get();
     expect(await settingsPage.getTitle()).to.eq(settingsPageTitle);
 
-    await settingsPage.email.sendKeys('.jh');
+    await settingsPage.setEmail('.jh');
     await settingsPage.save();
 
     const toast = getToastByInnerText('Email is already in use!');
