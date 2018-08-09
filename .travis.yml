@@ -55,6 +55,8 @@ env:
     - JHIPSTER=react-noi18n-es-ws-gradle-session PROTRACTOR=1
     - JHIPSTER=react-default PROFILE=prod PROTRACTOR=1
     - JHIPSTER=react-noi18n-es-ws-gradle-session PROTRACTOR=1
+    - JHIPSTER=react-default PROFILE=prod PROTRACTOR=1
+    - JHIPSTER=react-noi18n-es-ws-gradle-session PROTRACTOR=1
 
 before_install:
   - jdk_switcher use oraclejdk8
