@@ -262,6 +262,7 @@ module.exports = class extends BaseGenerator {
                     this.configOptions.devDatabaseType = this.options.db;
                     this.configOptions.prodDatabaseType = this.options.db;
                     this.configOptions.authenticationType = this.options.auth;
+                    this.configOptions.uaaBaseName = this.options.uaaBaseName;
                 }
                 this.configOptions.clientPackageManager = this.clientPackageManager;
             },
@@ -429,7 +430,7 @@ module.exports = class extends BaseGenerator {
                     this.log(`\n${chalk.bold.red('Running post run module hooks failed. No modification done to the generated app.')}`);
                     this.debug('Error:', err);
                 }
-                this.log(chalk.white(`If you find JHipster useful consider supporting our collective ${chalk.yellow('https://opencollective.com/generator-jhipster')}`));
+                this.log(chalk.green(`\nIf you find JHipster useful consider supporting our collective ${chalk.yellow('https://opencollective.com/generator-jhipster')}`));
             }
         };
     }

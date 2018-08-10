@@ -217,6 +217,9 @@ module.exports = class extends BaseGenerator {
                 if (this.skipServer && !(this.databaseType && this.devDatabaseType && this.prodDatabaseType && this.authenticationType)) {
                     this.error(`When using skip-server flag, you must pass a database option and authentication type using ${chalk.yellow('--db')} and ${chalk.yellow('--auth')} flags`);
                 }
+                if (this.skipServer && this.authenticationType === 'uaa' && !this.uaaBaseName) {
+                    this.error(`When using skip-server flag and UAA as authentication method, you must pass a UAA base name using ${chalk.yellow('--uaa-base-name')} flag`);
+                }
             }
         };
     }
@@ -450,19 +453,14 @@ module.exports = class extends BaseGenerator {
     _end() {
         return {
             end() {
-                if (!this.options['skip-install']) {
-                    this.log(chalk.green('\nStarting webpack:build\n'));
-
-                    const buildResult = this.spawnCommandSync(this.clientPackageManager, ['run', 'webpack:build']);
-                    if (buildResult !== undefined && buildResult.status !== 0) {
-                        this.error('webpack:build failed.');
-                    }
-                }
                 this.log(chalk.green.bold('\nClient application generated successfully.\n'));
 
                 const logMsg = `Start your Webpack development server with:\n ${chalk.yellow.bold(`${this.clientPackageManager} start`)}\n`;
 
                 this.log(chalk.green(logMsg));
+                if (!this.options['skip-install']) {
+                    this.spawnCommandSync(this.clientPackageManager, ['run', 'cleanup']);
+                }
             }
         };
     }
