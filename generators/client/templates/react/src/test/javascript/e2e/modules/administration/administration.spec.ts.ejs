@@ -48,8 +48,10 @@ describe('Administration', () => {
   <%_ if (authenticationType !== 'oauth2') { _%>
   it('should load user management', async () => {
     await navBarPage.clickOnAdminMenuItem('user-management');
+    const heading = element(by.id('user-management-page-heading'));
+    await waitUntilDisplayed(heading);
     // Title should be equal to 'Users'
-    expect(await element(by.id('user-management-page-heading')).isPresent()).to.be.true;
+    expect(await heading.isPresent()).to.be.true;
   });
   <%_ } _%>
 
