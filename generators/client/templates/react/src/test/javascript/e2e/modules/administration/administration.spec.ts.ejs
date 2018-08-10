@@ -36,9 +36,9 @@ describe('Administration', () => {
     <%_ if (authenticationType !== 'oauth2') { _%>
     await signInPage.waitUntilDisplayed();
 
-    await signInPage.setUserName('admin');
-    await signInPage.setPassword('admin');
-    await signInPage.login();
+    await signInPage.username.sendKeys('admin');
+    await signInPage.password.sendKeys('admin');
+    await signInPage.loginButton.click();
     await signInPage.waitUntilHidden();
 
     <%_ } _%>

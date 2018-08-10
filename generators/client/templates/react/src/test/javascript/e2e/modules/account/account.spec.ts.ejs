@@ -66,9 +66,9 @@ describe('Account', () => {
     // Login page should appear
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
-    await signInPage.setUserName('admin');
-    await signInPage.setPassword('foo');
-    await signInPage.login();
+    await signInPage.username.sendKeys('admin');
+    await signInPage.password.sendKeys('foo');
+    await signInPage.loginButton.click();
 
     // Login page should stay open when login fails
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
@@ -96,9 +96,9 @@ describe('Account', () => {
 
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
     
-    await signInPage.setUserName('admin');
-    await signInPage.setPassword('admin');
-    await signInPage.login();
+    await signInPage.username.sendKeys('admin');
+    await signInPage.password.sendKeys('admin');
+    await signInPage.loginButton.click();
     await signInPage.waitUntilHidden();
 
     // Login page should close when login success
@@ -146,8 +146,8 @@ describe('Account', () => {
   it('should not be able to sign up if email already taken', async () => {
     expect(await registerPage.getTitle()).to.eq(registerPageTitle);
 
-    await registerPage.setUserName('_jhi');
-    await registerPage.save();
+    await registerPage.username.sendKeys('_jhi');
+    await registerPage.saveButton.click();
     const toast = getToastByInnerText('Email is already in use!');
     await waitUntilDisplayed(toast);
 
@@ -158,9 +158,9 @@ describe('Account', () => {
   it('should load user management', async () => {
     await signInPage.get();
 
-    await signInPage.setUserName('admin');
-    await signInPage.setPassword('admin');
-    await signInPage.login();
+    await signInPage.username.sendKeys('admin');
+    await signInPage.password.sendKeys('admin');
+    await signInPage.loginButton.click();
     await signInPage.waitUntilHidden();
  
     const title = element(by.id('user-management-page-heading'));
@@ -173,6 +173,8 @@ describe('Account', () => {
   });
 
   it('should activate the new registered user', async () => {
+    expect(await element(by.id('user-management-page-heading')).isPresent()).to.be.true;
+
     const modifiedDateSortButton = getModifiedDateSortButton();
     await modifiedDateSortButton.click();
 
@@ -189,9 +191,9 @@ describe('Account', () => {
     await signInPage.get();
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
-    await signInPage.setUserName('user_test');
-    await signInPage.setPassword('user_test');
-    await signInPage.login();
+    await signInPage.username.sendKeys('user_test');
+    await signInPage.password.sendKeys('user_test');
+    await signInPage.loginButton.click();
     await signInPage.waitUntilHidden();
 
     // Login page should close when login success
@@ -203,9 +205,9 @@ describe('Account', () => {
     await signInPage.get();
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
-    await signInPage.setUserName('admin');
-    await signInPage.setPassword('admin');
-    await signInPage.login();
+    await signInPage.username.sendKeys('admin');
+    await signInPage.password.sendKeys('admin');
+    await signInPage.loginButton.click();
     await signInPage.waitUntilHidden();
 
     expect(await signInPage.isHidden()()).to.be.true;
@@ -250,9 +252,9 @@ describe('Account', () => {
     await signInPage.get();
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
-    await signInPage.setUserName('admin');
-    await signInPage.setPassword('new_password');
-    await signInPage.login();
+    await signInPage.username.sendKeys('admin');
+    await signInPage.password.sendKeys('new_password');
+    await signInPage.loginButton.click();
     await signInPage.waitUntilHidden();
     expect(await signInPage.isHidden()()).to.be.true;
 
@@ -269,9 +271,9 @@ describe('Account', () => {
     await signInPage.get();
     expect(await signInPage.getTitle()).to.eq(loginPageTitle);
 
-    await signInPage.setUserName('user_test');
-    await signInPage.setPassword('user_test');
-    await signInPage.login();
+    await signInPage.username.sendKeys('user_test');
+    await signInPage.password.sendKeys('user_test');
+    await signInPage.loginButton.click();
     await signInPage.waitUntilHidden();
 
     expect(await signInPage.isHidden()()).to.be.true;
@@ -281,8 +283,8 @@ describe('Account', () => {
     settingsPage = await navBarPage.getSettingsPage();
     expect(await settingsPage.getTitle()).to.eq(settingsPageTitle);
 
-    await settingsPage.setFirstName('jhipster');
-    await settingsPage.setLastName('retspihj');
+    await settingsPage.firstName.sendKeys('jhipster');
+    await settingsPage.lastName.sendKeys('retspihj');
     await settingsPage.save();
 
     const toast = getToastByInnerText('Settings saved!');
@@ -294,7 +296,10 @@ describe('Account', () => {
   });
 
   it('should not be able to change settings if email already exists', async () => {
-    await navBarPage.autoSignIn();
+    await signInPage.get();
+    await signInPage.username.sendKeys('admin');
+    await signInPage.password.sendKeys('admin');
+    await signInPage.loginButton.click();
     await signInPage.waitUntilHidden();
 
     await settingsPage.get();
@@ -314,8 +319,9 @@ describe('Account', () => {
     await browser.get('#/admin/user-management/user_test/delete');
     const deleteModal = element(by.className('modal'));
     await waitUntilDisplayed(deleteModal);
-    
+        
     await element(by.buttonText('Delete')).click();
+    await waitUntilHidden(deleteModal);
 
     // Delete modal should disappear
     expect(await deleteModal.isPresent()).to.be.false;
