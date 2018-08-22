@@ -1,7 +1,7 @@
 const os = require('os');
 
 exports.config = {
-  allScriptsTimeout: 60000,
+  allScriptsTimeout: 20000,
 
   specs: [
     './e2e/modules/account/*.spec.ts',
@@ -29,7 +29,7 @@ exports.config = {
     reporter: 'spec',
     slow: 3000,
     ui: 'bdd',
-    timeout: 60000
+    timeout: 720000
   },
 
   beforeLaunch () {
