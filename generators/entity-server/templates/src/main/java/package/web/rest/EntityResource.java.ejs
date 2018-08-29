@@ -94,6 +94,8 @@ public class <%= entityClass %>Resource {
     <%_ let entityName = entityInstance;
     if (clientRootFolder && !skipUiGrouping) {
         entityName = _.camelCase(`${clientRootFolder}${entityClass}`);
+    } else if (applicationType === 'microservice') {
+        entityName = _.camelCase(`${baseName}${entityClass}`);
     } _%>
     private static final String ENTITY_NAME = "<%= entityName %>";
     <%_
