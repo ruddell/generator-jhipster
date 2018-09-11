@@ -281,9 +281,9 @@ module.exports = class extends BaseGenerator {
                     // defaults to use when skipping server
                     this.generatorType = 'client';
                     this.configOptions.databaseType = this.getDBTypeFromDBValue(this.options.db);
-                    this.configOptions.devDatabaseType = this.options.db;
-                    this.configOptions.prodDatabaseType = this.options.db;
-                    this.configOptions.authenticationType = this.options.auth;
+                    this.configOptions.devDatabaseType = this.options.db.toLowerCase();
+                    this.configOptions.prodDatabaseType = this.options.db.toLowerCase();
+                    this.configOptions.authenticationType = this.options.auth.toLowerCase();
                     this.configOptions.uaaBaseName = this.options.uaaBaseName;
                 }
                 this.configOptions.clientPackageManager = this.clientPackageManager;
