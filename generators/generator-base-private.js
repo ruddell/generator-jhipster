@@ -117,7 +117,7 @@ module.exports = class extends Generator {
      */
     copyI18n(language, prefix = '') {
         try {
-            const fileName = this.entityTranslationKey;
+            const fileName = this.entityTranslationFileName;
             this.template(
                 `${prefix ? `${prefix}/` : ''}i18n/entity_${language}.json.ejs`,
                 `${CLIENT_MAIN_SRC_DIR}i18n/${language}/${fileName}.json`

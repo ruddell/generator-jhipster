@@ -662,7 +662,10 @@ module.exports = class extends BaseGenerator {
                 context.entityReactName = context.entityClass + this.upperFirstCamelCase(context.entityAngularJSSuffix);
                 context.entityStateName = _.kebabCase(context.entityAngularName);
                 context.entityUrl = context.entityStateName;
-                context.entityTranslationKey = context.clientRootFolder
+                context.entityTranslationKey = context.microserviceName
+                    ? _.camelCase(`${context.microserviceName}-${context.entityInstance}`)
+                    : context.entityInstance;
+                context.entityTranslationFileName = context.clientRootFolder
                     ? _.camelCase(`${context.clientRootFolder}-${context.entityInstance}`)
                     : context.entityInstance;
                 context.entityTranslationKeyMenu = _.camelCase(
