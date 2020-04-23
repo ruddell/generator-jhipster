@@ -196,6 +196,9 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     <%_ if (databaseType === 'neo4j') { _%>
     @GeneratedValue(UUIDStringGenerator.class)
     <%_ } _%>
+    <%_ if (searchEngine === 'elasticsearch' && primaryKeyType !== 'Long') { _%>
+    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
+    <%_ } _%>
     private <%= primaryKeyType %> id;
 
 <%_ } _%>
