@@ -216,6 +216,7 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     const fieldName = fields[idx].fieldName;
     const fieldNameUnderscored = fields[idx].fieldNameUnderscored;
     const fieldNameAsDatabaseColumn = fields[idx].fieldNameAsDatabaseColumn;
+    const fieldIsEnum = fields[idx].fieldIsEnum;
     if (fieldValidate === true) {
         if (fieldValidateRules.includes('required')) {
             required = true;
@@ -229,7 +230,7 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     @ApiModelProperty(value = "<%- formatAsApiDescription(fields[idx].javadoc) %>"<% if (required) { %>, required = true<% } %>)
     <%_ } _%>
     <%_ if (databaseType === 'sql') {
-        if (fields[idx].fieldIsEnum) { _%>
+        if (fieldIsEnum) { _%>
     @Enumerated(EnumType.STRING)
         <%_ }
         if (fieldType === 'byte[]') { _%>
@@ -254,6 +255,9 @@ public class <%= asEntity(entityClass) %> implements Serializable {
     <%_ } _%>
     <%_ if (databaseType === 'neo4j') { _%>
     @Property("<%=fieldNameUnderscored %>")
+    <%_ } _%>
+    <%_ if (searchEngine === 'elasticsearch' && (['String', 'UUID'].indexOf(fieldType) !== -1 || fieldTypeBlobContent === 'text' || fieldIsEnum)) { _%>
+    @org.springframework.data.elasticsearch.annotations.Field(type = FieldType.Keyword)
     <%_ } _%>
     <%_ if (fieldTypeBlobContent !== 'text') { _%>
     private <%= fieldType %> <%= fieldName %>;
