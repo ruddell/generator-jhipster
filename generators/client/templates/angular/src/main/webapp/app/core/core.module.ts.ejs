@@ -3,7 +3,6 @@ import { DatePipe, registerLocaleData } from '@angular/common';
 import { <% if (enableTranslation) { %>HttpClient, <% } %>HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http';
 import { Title } from '@angular/platform-browser';
 import { FaIconLibrary } from '@fortawesome/angular-fontawesome';
-import { CookieService } from 'ngx-cookie-service';
 <%_ if (enableTranslation) { _%>
 import { TranslateModule, TranslateLoader, MissingTranslationHandler } from '@ngx-translate/core';
 <%_ } _%>
@@ -60,7 +59,6 @@ import { fontAwesomeIcons } from './icons/font-awesome-icons';
     ],
     providers: [
         Title,
-        CookieService,
         {
             provide: LOCALE_ID,
             <%_ if (skipLanguageForLocale(nativeLanguage)) { _%>

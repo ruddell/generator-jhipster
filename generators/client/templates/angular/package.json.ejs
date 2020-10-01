@@ -46,7 +46,6 @@ limitations under the License.
     <%_ } _%>
     "moment": "2.27.0",
     "ng-jhipster": "VERSION_MANAGED_BY_CLIENT_ANGULAR",
-    "ngx-cookie-service": "VERSION_MANAGED_BY_CLIENT_ANGULAR",
     "ngx-infinite-scroll": "VERSION_MANAGED_BY_CLIENT_ANGULAR",
     "ngx-webstorage": "VERSION_MANAGED_BY_CLIENT_ANGULAR",
     "rxjs": "VERSION_MANAGED_BY_CLIENT_ANGULAR",
@@ -54,6 +53,9 @@ limitations under the License.
     <%_ if (websocket === 'spring-websocket') { _%>
     "sockjs-client": "1.4.0",
     "webstomp-client": "1.2.6",
+      <%_ if (authenticationType === 'session') { _%>
+    "ngx-cookie-service": "VERSION_MANAGED_BY_CLIENT_ANGULAR",
+      <%_ } _%>
     <%_ } _%>
     <%_ if (skipServer) { _%>
     "sonar-scanner": "3.1.0",

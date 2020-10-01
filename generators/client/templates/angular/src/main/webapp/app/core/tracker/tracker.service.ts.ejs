@@ -25,7 +25,7 @@ import * as SockJS from 'sockjs-client';
 import * as Stomp from 'webstomp-client';
 
 <%_ if (authenticationType === 'session') { _%>
-import { CSRFService } from 'app/core/auth/csrf.service';
+import { CookieService } from 'ngx-cookie-service';
 <%_ } _%>
 <%_ if (authenticationType === 'jwt') { _%>
 import { AuthServerProvider } from 'app/core/auth/auth-jwt.service';
@@ -44,7 +44,7 @@ export class TrackerService {
     constructor(
         private router: Router,
         <%_ if (authenticationType === 'session') { _%>
-        private csrfService: CSRFService,
+        private cookieService: CookieService,
         <%_ } _%>
         <%_ if (authenticationType === 'jwt') { _%>
         private authServerProvider: AuthServerProvider,
@@ -70,7 +70,7 @@ export class TrackerService {
         this.stompClient = Stomp.over(socket);
         const headers: Stomp.ConnectionHeaders = {};
         <%_ if (authenticationType === 'session') { _%>
-        headers['X-XSRF-TOKEN'] = this.csrfService.getCSRF('XSRF-TOKEN');
+        headers['X-XSRF-TOKEN'] = this.cookieService.get('XSRF-TOKEN');
         <%_ } _%>
         this.stompClient.connect(headers, () => {
             this.connectionSubject.next();

@@ -340,7 +340,6 @@ const files = {
         {
             path: ANGULAR_DIR,
             templates: [
-                'core/auth/csrf.service.ts',
                 'core/auth/state-storage.service.ts',
                 'shared/auth/has-any-authority.directive.ts',
                 'core/auth/account.service.ts',
