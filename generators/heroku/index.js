@@ -108,10 +108,12 @@ module.exports = class extends BaseBlueprintGenerator {
                 if (this.herokuAppName) {
                     ChildProcess.exec('heroku apps:info --json', (err, stdout) => {
                         if (err) {
-                            this.abort = true;
+                            this.cancelCancellableTasks();
+                            this.config.set({
+                                herokuAppName: null,
+                            });
                             this.log.error(`Could not find application: ${chalk.cyan(this.herokuAppName)}`);
                             this.log.error('Run the generator again to create a new application.');
-                            this.herokuAppName = null;
                         } else {
                             const json = JSON.parse(stdout);
                             this.herokuAppName = json.app.name;
@@ -154,7 +156,6 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             askForHerokuDeployType() {
-                if (this.abort) return null;
                 if (this.herokuDeployType) return null;
                 const prompts = [
                     {
@@ -181,7 +182,6 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             askForHerokuJavaVersion() {
-                if (this.abort) return null;
                 if (this.herokuJavaVersion) return null;
                 const prompts = [
                     {
@@ -219,7 +219,6 @@ module.exports = class extends BaseBlueprintGenerator {
                 });
             },
             askForOkta() {
-                if (this.abort) return null;
                 if (this.authenticationType !== 'oauth2') return null;
                 if (this.useOkta) return null;
                 const prompts = [
@@ -290,13 +289,12 @@ module.exports = class extends BaseBlueprintGenerator {
     _configuring() {
         return {
             checkInstallation() {
-                if (this.abort) return;
                 const done = this.async();
 
                 ChildProcess.exec('heroku --version', err => {
                     if (err) {
                         this.log.error("You don't have the Heroku CLI installed. Download it from https://cli.heroku.com/");
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                     }
                     done();
                 });
@@ -327,7 +325,6 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             gitInit() {
-                if (this.abort) return;
                 const done = this.async();
 
                 try {
@@ -347,7 +344,6 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             installHerokuDeployPlugin() {
-                if (this.abort) return;
                 const done = this.async();
                 const cliPlugin = 'heroku-cli-deploy';
 
@@ -359,7 +355,7 @@ module.exports = class extends BaseBlueprintGenerator {
                         this.log(chalk.bold('\nInstalling Heroku CLI deployment plugin'));
                         const child = ChildProcess.exec(`heroku plugins:install ${cliPlugin}`, (err, stdout) => {
                             if (err) {
-                                this.abort = true;
+                                this.cancelCancellableTasks();
                                 this.log.error(err);
                             }
 
@@ -374,7 +370,7 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             herokuCreate() {
-                if (this.abort || this.herokuAppExists) return;
+                if (this.herokuAppExists) return;
                 const done = this.async();
 
                 const regionParams = this.herokuRegion !== 'us' ? ` --region ${this.herokuRegion}` : '';
@@ -407,7 +403,7 @@ module.exports = class extends BaseBlueprintGenerator {
                                 if (props.herokuForceName === 'Yes') {
                                     ChildProcess.exec(`heroku git:remote --app ${this.herokuAppName}`, (err, stdout, stderr) => {
                                         if (err) {
-                                            this.abort = true;
+                                            this.cancelCancellableTasks();
                                             this.log.error(err);
                                         } else {
                                             this.log(stdout.trim());
@@ -421,7 +417,7 @@ module.exports = class extends BaseBlueprintGenerator {
                                 } else {
                                     ChildProcess.exec(`heroku create ${regionParams}`, (err, stdout, stderr) => {
                                         if (err) {
-                                            this.abort = true;
+                                            this.cancelCancellableTasks();
                                             this.log.error(err);
                                         } else {
                                             // Extract from "Created random-app-name-1234... done"
@@ -434,7 +430,7 @@ module.exports = class extends BaseBlueprintGenerator {
                                             // ensure that the git remote is the same as the appName
                                             ChildProcess.exec(`heroku git:remote --app ${this.herokuAppName}`, (err, stdout, stderr) => {
                                                 if (err) {
-                                                    this.abort = true;
+                                                    this.cancelCancellableTasks();
                                                     this.log.error(err);
                                                 } else {
                                                     this.config.set({
@@ -449,7 +445,7 @@ module.exports = class extends BaseBlueprintGenerator {
                                 }
                             });
                         } else {
-                            this.abort = true;
+                            this.cancelCancellableTasks();
                             this.log.error(err);
                             done();
                         }
@@ -461,7 +457,7 @@ module.exports = class extends BaseBlueprintGenerator {
                 child.stdout.on('data', data => {
                     const output = data.toString();
                     if (data.search('Heroku credentials') >= 0) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.log.error("Error: Not authenticated. Run 'heroku login' to login to your heroku account and try again.");
                         done();
                     } else {
@@ -471,14 +467,13 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             herokuAddonsCreate() {
-                if (this.abort) return;
                 const done = this.async();
 
                 const addonCreateCallback = (addon, err, stdout, stderr) => {
                     if (err) {
                         const verifyAccountUrl = 'https://heroku.com/verify';
                         if (_.includes(err, verifyAccountUrl)) {
-                            this.abort = true;
+                            this.cancelCancellableTasks();
                             this.log.error(`Account must be verified to use addons. Please go to: ${verifyAccountUrl}`);
                             this.log.error(err);
                         } else {
@@ -554,7 +549,7 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             configureJHipsterRegistry() {
-                if (this.abort || this.herokuAppExists) return undefined;
+                if (this.herokuAppExists) return undefined;
 
                 if (this.serviceDiscoveryType === 'eureka') {
                     const prompts = [
@@ -585,7 +580,7 @@ module.exports = class extends BaseBlueprintGenerator {
                         const configSetCmd = `heroku config:set JHIPSTER_REGISTRY_URL=${herokuJHipsterRegistry} --app ${this.herokuAppName}`;
                         const child = ChildProcess.exec(configSetCmd, (err, stdout, stderr) => {
                             if (err) {
-                                this.abort = true;
+                                this.cancelCancellableTasks();
                                 this.log.error(err);
                             }
                         });
@@ -599,8 +594,6 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             copyHerokuFiles() {
-                if (this.abort) return;
-
                 this.log(chalk.bold('\nCreating Heroku deployment files'));
 
                 this.template('bootstrap-heroku.yml.ejs', `${constants.SERVER_MAIN_RES_DIR}/config/bootstrap-heroku.yml`);
@@ -621,7 +614,6 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             addHerokuDependencies() {
-                if (this.abort) return;
                 if (this.buildTool === 'maven') {
                     this.addMavenDependency('org.springframework.cloud', 'spring-cloud-localconfig-connector');
                     this.addMavenDependency('org.springframework.cloud', 'spring-cloud-heroku-connector');
@@ -632,14 +624,12 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             addHerokuBuildPlugin() {
-                if (this.abort) return;
                 if (this.buildTool !== 'gradle') return;
                 this.addGradlePlugin('gradle.plugin.com.heroku.sdk', 'heroku-gradle', '1.0.4');
                 this.applyFromGradleScript('gradle/heroku');
             },
 
             addHerokuMavenProfile() {
-                if (this.abort) return;
                 if (this.buildTool === 'maven') {
                     this.render('pom-profile.xml.ejs', profile => {
                         this.addMavenProfile('heroku', `            ${profile.toString().trim()}`);
@@ -657,7 +647,6 @@ module.exports = class extends BaseBlueprintGenerator {
     _end() {
         return {
             makeScriptExecutable() {
-                if (this.abort) return;
                 if (this.useOkta) {
                     try {
                         fs.chmodSync('provision-okta-addon.sh', '755');
@@ -671,8 +660,6 @@ module.exports = class extends BaseBlueprintGenerator {
                 }
             },
             productionBuild() {
-                if (this.abort) return;
-
                 if (this.herokuSkipBuild || this.herokuDeployType === 'git') {
                     this.log(chalk.bold('\nSkipping build'));
                     return;
@@ -683,7 +670,7 @@ module.exports = class extends BaseBlueprintGenerator {
 
                 const child = this.buildApplication(this.buildTool, 'prod', false, err => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.log.error(err);
                     }
                     done();
@@ -697,8 +684,6 @@ module.exports = class extends BaseBlueprintGenerator {
             },
 
             async productionDeploy() {
-                if (this.abort) return;
-
                 if (this.herokuSkipDeploy) {
                     this.log(chalk.bold('\nSkipping deployment'));
                     return;
