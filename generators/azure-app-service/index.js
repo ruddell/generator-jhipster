@@ -94,17 +94,15 @@ module.exports = class extends BaseGenerator {
     get prompting() {
         return {
             checkBuildTool() {
-                if (this.abort) return;
                 const done = this.async();
                 if (this.buildTool !== 'maven') {
                     this.error('Sorry, this sub-generator only works with Maven projects for the moment.');
-                    this.abort = true;
+                    this.cancelCancellableTasks();
                 }
                 done();
             },
 
             checkInstallation() {
-                if (this.abort) return;
                 const done = this.async();
 
                 exec('az --version', err => {
@@ -114,21 +112,20 @@ module.exports = class extends BaseGenerator {
 Download it from:
 ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc_id=generator-jhipster-judubois')}`
                         );
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                     }
                     done();
                 });
             },
 
             getAzureAppServiceDefaults() {
-                if (this.abort) return;
                 const done = this.async();
                 exec('az configure --list-defaults true', (err, stdout) => {
                     if (err) {
                         this.config.set({
                             azureAppServiceResourceGroupName: null,
                         });
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.error('Could not retrieve your Azure default configuration.');
                     } else {
                         const json = JSON.parse(stdout);
@@ -150,7 +147,6 @@ ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc
             },
 
             askForazureAppServiceVariables() {
-                if (this.abort) return;
                 const done = this.async();
 
                 const prompts = [
@@ -190,7 +186,6 @@ ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc
             },
 
             askForAzureDeployType() {
-                if (this.abort) return;
                 const done = this.async();
                 const prompts = [
                     {
@@ -222,7 +217,6 @@ ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc
     get configuring() {
         return {
             saveConfig() {
-                if (this.abort) return;
                 this.config.set({
                     azureAppServicePlan: this.azureAppServicePlan,
                     azureApplicationInsightsName: this.azureApplicationInsightsName,
@@ -240,12 +234,11 @@ ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc
             },
 
             checkAzureGroupId() {
-                if (this.abort) return;
                 const done = this.async();
                 this.log(chalk.bold(`\nChecking Azure resource group '${this.azureAppServiceResourceGroupName}'...`));
                 exec(`az group show --name ${this.azureAppServiceResourceGroupName}`, (err, stdout) => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.error('Could not retrieve your Azure resource group information, it is probably not configured.');
                     } else {
                         const json = JSON.parse(stdout);
@@ -256,13 +249,12 @@ ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc
             },
 
             azureAzureAppServicePlanCreate() {
-                if (this.abort) return;
                 const done = this.async();
                 this.log(chalk.bold(`\nChecking Azure App Service plan '${this.azureAppServicePlan}'...`));
                 let servicePlanAlreadyExists = false;
                 exec(`az appservice plan list --resource-group ${this.azureAppServiceResourceGroupName}`, (err, stdout, stderr) => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.error('Could not list your Azure App Service plans');
                     } else {
                         const json = JSON.parse(stdout);
@@ -277,7 +269,7 @@ ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc
                                     `az appservice plan create --name ${this.azureAppServicePlan} --is-linux --sku B1 --resource-group ${this.azureAppServiceResourceGroupName}`,
                                     err => {
                                         if (err) {
-                                            this.abort = true;
+                                            this.cancelCancellableTasks();
                                             this.error('Could not create the Azure App Service plan');
                                             this.log(err);
                                             done();
@@ -294,7 +286,7 @@ which is free for the first 30 days`);
                             }
                         } catch (e) {
                             this.log(e);
-                            this.abort = true;
+                            this.cancelCancellableTasks();
                             this.error('Could not manage the Azure App Service plan');
                         }
                     }
@@ -302,12 +294,11 @@ which is free for the first 30 days`);
             },
 
             azureAzureAppServiceCreate() {
-                if (this.abort) return;
                 const done = this.async();
                 this.log(chalk.bold(`\nChecking Azure App Service '${this.azureAppServiceName}'...`));
                 exec(`az webapp list --query "[]" --resource-group ${this.azureAppServiceResourceGroupName}`, (err, stdout, stderr) => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.error('Could not list your Azure App Service instances');
                     } else {
                         const json = JSON.parse(stdout);
@@ -324,7 +315,7 @@ which is free for the first 30 days`);
                                             --resource-group ${this.azureAppServiceResourceGroupName}`,
                                     err => {
                                         if (err) {
-                                            this.abort = true;
+                                            this.cancelCancellableTasks();
                                             this.error('Could not create the Web application');
                                             this.log(err);
                                             done();
@@ -339,7 +330,7 @@ which is free for the first 30 days`);
                             }
                         } catch (e) {
                             this.log(e);
-                            this.abort = true;
+                            this.cancelCancellableTasks();
                             this.error('Could not manage the Azure App Service Web application');
                         }
                     }
@@ -347,7 +338,6 @@ which is free for the first 30 days`);
             },
 
             azureAzureAppServiceConfig() {
-                if (this.abort) return;
                 const done = this.async();
                 this.log(`Configuring Azure App Service '${this.azureAppServiceName}'...`);
                 this.log("Enabling 'prod' and 'azure' Spring Boot profiles");
@@ -355,7 +345,7 @@ which is free for the first 30 days`);
                     `az webapp config appsettings set --resource-group ${this.azureAppServiceResourceGroupName} --name ${this.azureAppServiceName} --settings SPRING_PROFILES_ACTIVE=prod,azure`,
                     (err, stdout) => {
                         if (err) {
-                            this.abort = true;
+                            this.cancelCancellableTasks();
                             this.error('Could not configure Azure App Service instance');
                         }
                         done();
@@ -364,7 +354,6 @@ which is free for the first 30 days`);
             },
 
             addAzureAppServiceMavenPlugin() {
-                if (this.abort) return;
                 const done = this.async();
                 this.log(chalk.bold('\nAdding Azure Web App Maven plugin'));
                 if (this.buildTool === 'maven') {
@@ -381,7 +370,6 @@ which is free for the first 30 days`);
             },
 
             checkAzureApplicationInsightsExtension() {
-                if (this.abort) return;
                 if (this.azureSpringCloudSkipInsights) return;
                 const done = this.async();
                 this.log(chalk.bold('\nAzure Application Insights configuration'));
@@ -394,7 +382,7 @@ which is free for the first 30 days`);
                                 this.log(chalk.green('The Azure Application Insights CLI extension is installed!'));
                             } else {
                                 this.log(err);
-                                this.abort = true;
+                                this.cancelCancellableTasks();
                                 this.error('Could not install the Azure Application Insights extension');
                             }
                             done();
@@ -407,7 +395,6 @@ which is free for the first 30 days`);
             },
 
             configureAzureApplicationInsights() {
-                if (this.abort) return;
                 if (this.azureSpringCloudSkipInsights) return;
                 const done = this.async();
                 this.log('Checking Azure Application Insights instance...');
@@ -421,7 +408,7 @@ which is free for the first 30 days`);
                                 (err, stdout) => {
                                     if (err) {
                                         this.log(err);
-                                        this.abort = true;
+                                        this.cancelCancellableTasks();
                                         this.error('Could not create the Azure Application Insights instance');
                                     } else {
                                         this.log(chalk.green('The Azure Application Insights instance is created!'));
@@ -442,7 +429,6 @@ which is free for the first 30 days`);
             },
 
             addAzureApplicationInsightsDependency() {
-                if (this.abort) return;
                 if (this.azureSpringCloudSkipInsights) return;
                 const done = this.async();
                 this.log('Adding Azure Application Insights support in the Web Application');
@@ -456,7 +442,6 @@ which is free for the first 30 days`);
             },
 
             copyAzureAppServiceFiles() {
-                if (this.abort) return;
                 this.log(chalk.bold('\nCreating Azure App Service deployment files'));
                 this.template('application-azure.yml.ejs', `${constants.SERVER_MAIN_RES_DIR}/config/application-azure.yml`);
                 if (this.azureAppServiceDeploymentType === 'github-action') {
@@ -469,7 +454,6 @@ which is free for the first 30 days`);
     get end() {
         return {
             gitHubAction() {
-                if (this.abort) return;
                 if (this.azureAppServiceDeploymentType === 'local') return;
                 const done = this.async();
 
@@ -483,7 +467,7 @@ which is free for the first 30 days`);
                         `${chalk.red('Git is not set up on your project!')}
 You need a GitHub project correctly configured in order to use GitHub Actions.`
                     );
-                    this.abort = true;
+                    this.cancelCancellableTasks();
                     return;
                 }
                 const gitAddCmd = 'git add .';
@@ -491,7 +475,7 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
                 this.log(chalk.cyan(gitAddCmd));
                 exec(gitAddCmd, (err, stdout, stderr) => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.error(err);
                     } else {
                         const line = stderr.toString().trimRight();
@@ -503,7 +487,7 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
                         this.log(chalk.cyan(gitCommitCmd));
                         exec(gitCommitCmd, (err, stdout, stderr) => {
                             if (err) {
-                                this.abort = true;
+                                this.cancelCancellableTasks();
                                 this.error(err);
                             } else {
                                 const line = stderr.toString().trimRight();
@@ -513,7 +497,7 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
                                 this.log(chalk.cyan(gitPushCmd));
                                 exec(gitPushCmd, (err, stdout, stderr) => {
                                     if (err) {
-                                        this.abort = true;
+                                        this.cancelCancellableTasks();
                                         this.error(err);
                                     } else {
                                         const line = stderr.toString().trimRight();
@@ -541,7 +525,6 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
             },
 
             productionBuild() {
-                if (this.abort) return;
                 if (this.azureAppServiceDeploymentType === 'github-action') return;
                 if (this.azureSpringCloudSkipBuild) return;
 
@@ -550,7 +533,7 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
 
                 const child = this.buildApplication(this.buildTool, 'prod', false, err => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.error(err);
                     }
                     done();
@@ -564,7 +547,6 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
             },
 
             productionDeploy() {
-                if (this.abort) return;
                 if (this.azureAppServiceDeploymentType === 'github-action') return;
                 if (this.azureSpringCloudSkipDeploy) return;
 
@@ -573,7 +555,7 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
 
                 const child = this.runJavaBuildCommand(this.buildTool, 'prod', 'azure-webapp:deploy', err => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.log.error(err);
                     }
                     done();

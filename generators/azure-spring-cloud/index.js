@@ -78,17 +78,15 @@ module.exports = class extends BaseGenerator {
     get prompting() {
         return {
             checkBuildTool() {
-                if (this.abort) return;
                 const done = this.async();
                 if (this.buildTool !== 'maven') {
                     this.log.error('Sorry, this sub-generator only works with Maven projects for the moment.');
-                    this.abort = true;
+                    this.cancelCancellableTasks();
                 }
                 done();
             },
 
             checkInstallation() {
-                if (this.abort) return;
                 const done = this.async();
 
                 exec('az --version', err => {
@@ -98,14 +96,13 @@ module.exports = class extends BaseGenerator {
 Download it from:
 ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc_id=generator-jhipster-judubois')}`
                         );
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                     }
                     done();
                 });
             },
 
             checkExtensionInstallation() {
-                if (this.abort) return;
                 const done = this.async();
 
                 exec('az extension show --name spring-cloud', err => {
@@ -115,34 +112,32 @@ ${chalk.red('https://docs.microsoft.com/en-us/cli/azure/install-azure-cli/?WT.mc
 Install it by running:
 ${chalk.red('az extension add --name spring-cloud')}`
                         );
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                     }
                     done();
                 });
             },
 
             checkClusterAvailability() {
-                if (this.abort) return;
                 const done = this.async();
 
                 exec('az spring-cloud app list', err => {
                     if (err) {
                         this.log.error(`${chalk.red('Your Azure Spring Cloud cluster is not available!')}\n ${err}`);
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                     }
                     done();
                 });
             },
 
             getAzureSpringCloudDefaults() {
-                if (this.abort) return;
                 const done = this.async();
                 exec('az configure --list-defaults true', (err, stdout) => {
                     if (err) {
                         this.config.set({
                             azureSpringCloudResourceGroupName: null,
                         });
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.log.error('Could not retrieve your Azure default configuration.');
                     } else {
                         const json = JSON.parse(stdout);
@@ -174,7 +169,6 @@ ${chalk.red('az extension add --name spring-cloud')}`
             },
 
             askForazureSpringCloudVariables() {
-                if (this.abort) return;
                 const done = this.async();
 
                 const prompts = [
@@ -207,7 +201,6 @@ ${chalk.red('az extension add --name spring-cloud')}`
             },
 
             askForAzureDeployType() {
-                if (this.abort) return;
                 const done = this.async();
                 const prompts = [
                     {
@@ -239,7 +232,6 @@ ${chalk.red('az extension add --name spring-cloud')}`
     get configuring() {
         return {
             saveConfig() {
-                if (this.abort) return;
                 this.config.set({
                     azureSpringCloudAppName: this.azureSpringCloudAppName,
                     azureSpringCloudDeploymentType: this.azureSpringCloudDeploymentType,
@@ -255,7 +247,6 @@ ${chalk.red('az extension add --name spring-cloud')}`
             },
 
             azureSpringCloudAppCreate() {
-                if (this.abort) return;
                 const done = this.async();
                 exec(
                     `az spring-cloud app show --resource-group ${this.azureSpringCloudResourceGroupName} \
@@ -268,7 +259,7 @@ ${chalk.red('az extension add --name spring-cloud')}`
             --service ${this.azureSpringCloudServiceName} --name ${this.azureSpringCloudAppName}`,
                                 (err, stdout) => {
                                     if (err) {
-                                        this.abort = true;
+                                        this.cancelCancellableTasks();
                                         this.log.error(`Application creation failed! Here is the error: ${err}`);
                                     } else {
                                         this.log(`${chalk.green(chalk.bold('Success!'))} Your application has been created.`);
@@ -285,7 +276,6 @@ ${chalk.red('az extension add --name spring-cloud')}`
             },
 
             copyAzureSpringCloudFiles() {
-                if (this.abort) return;
                 this.log(chalk.bold('\nCreating Azure Spring Cloud deployment files'));
                 this.template('application-azure.yml.ejs', `${constants.SERVER_MAIN_RES_DIR}/config/application-azure.yml`);
                 this.template('bootstrap-azure.yml.ejs', `${constants.SERVER_MAIN_RES_DIR}/config/bootstrap-azure.yml`);
@@ -295,7 +285,6 @@ ${chalk.red('az extension add --name spring-cloud')}`
             },
 
             addAzureSpringCloudMavenProfile() {
-                if (this.abort) return;
                 if (this.buildTool === 'maven') {
                     this.render('pom-profile.xml.ejs', profile => {
                         this.addMavenProfile('azure', `            ${profile.toString().trim()}`);
@@ -308,7 +297,6 @@ ${chalk.red('az extension add --name spring-cloud')}`
     get end() {
         return {
             gitHubAction() {
-                if (this.abort) return;
                 if (this.azureSpringCloudDeploymentType === 'local') return;
                 const done = this.async();
 
@@ -322,7 +310,7 @@ ${chalk.red('az extension add --name spring-cloud')}`
                         `${chalk.red('Git is not set up on your project!')}
 You need a GitHub project correctly configured in order to use GitHub Actions.`
                     );
-                    this.abort = true;
+                    this.cancelCancellableTasks();
                     return;
                 }
                 const gitAddCmd = 'git add .';
@@ -330,7 +318,7 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
                 this.log(chalk.cyan(gitAddCmd));
                 exec(gitAddCmd, (err, stdout, stderr) => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.log.error(err);
                     } else {
                         const line = stderr.toString().trimRight();
@@ -342,7 +330,7 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
                         this.log(chalk.cyan(gitCommitCmd));
                         exec(gitCommitCmd, (err, stdout, stderr) => {
                             if (err) {
-                                this.abort = true;
+                                this.cancelCancellableTasks();
                                 this.log.error(err);
                             } else {
                                 const line = stderr.toString().trimRight();
@@ -352,7 +340,7 @@ You need a GitHub project correctly configured in order to use GitHub Actions.`
                                 this.log(chalk.cyan(gitPushCmd));
                                 exec(gitPushCmd, (err, stdout, stderr) => {
                                     if (err) {
-                                        this.abort = true;
+                                        this.cancelCancellableTasks();
                                         this.log.error(err);
                                     } else {
                                         const line = stderr.toString().trimRight();
@@ -377,7 +365,6 @@ for more detailed information.`
             },
 
             productionBuild() {
-                if (this.abort) return;
                 if (this.azureSpringCloudDeploymentType === 'github-action') return;
                 if (this.azureSpringCloudSkipBuild) return;
 
@@ -386,7 +373,7 @@ for more detailed information.`
 
                 const child = this.buildApplication(this.buildTool, 'prod,azure', false, err => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.log.error(err);
                     }
                     done();
@@ -400,7 +387,6 @@ for more detailed information.`
             },
 
             productionDeploy() {
-                if (this.abort) return;
                 if (this.azureSpringCloudDeploymentType === 'github-action') return;
                 if (this.azureSpringCloudSkipDeploy) return;
 
@@ -416,7 +402,7 @@ for more detailed information.`
 --jar-path ${buildDir}/*.jar`,
                     (err, stdout) => {
                         if (err) {
-                            this.abort = true;
+                            this.cancelCancellableTasks();
                             this.log.error(`Deployment failed!\n ${err}`);
                         } else {
                             const json = JSON.parse(stdout);
