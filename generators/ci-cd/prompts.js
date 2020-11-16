@@ -24,7 +24,6 @@ module.exports = {
 };
 
 async function askPipeline() {
-    if (this.abort) return;
     if (this.autoconfigureTravis) {
         this.log('Auto-configuring Travis CI');
         this.pipeline = 'travis';
@@ -85,7 +84,7 @@ async function askPipeline() {
 }
 
 async function askIntegrations() {
-    if (this.abort || !this.pipeline || this.pipeline === 'azure') return;
+    if (!this.pipeline || this.pipeline === 'azure') return;
     if (this.autoconfigureTravis) {
         this.cicdIntegrations = [];
         return;

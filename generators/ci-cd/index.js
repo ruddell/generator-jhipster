@@ -109,7 +109,6 @@ module.exports = class extends BaseGenerator {
                 this.autoconfigureAzure = this.options.autoconfigureAzure;
                 this.autoconfigureGithub = this.options.autoconfigureGithub;
                 this.autoconfigureCircleCI = this.options.autoconfigureCircle;
-                this.abort = false;
             },
             initConstants() {
                 this.NODE_VERSION = constants.NODE_VERSION;
@@ -134,11 +133,9 @@ module.exports = class extends BaseGenerator {
     get configuring() {
         return {
             insight() {
-                if (this.abort) return;
                 statistics.sendSubGenEvent('generator', 'ci-cd');
             },
             setTemplateConstants() {
-                if (this.abort) return;
                 if (this.cicdIntegrations === undefined) {
                     this.cicdIntegrations = [];
                 }
