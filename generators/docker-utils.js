@@ -37,7 +37,7 @@ module.exports = {
  * @param failOver flag
  */
 function checkDocker() {
-    if (this.abort || this.skipChecks) return;
+    if (this.skipChecks) return;
     const done = this.async();
 
     shelljs.exec('docker -v', { silent: true }, (code, stdout, stderr) => {
@@ -48,7 +48,7 @@ function checkDocker() {
                         '         Read http://docs.docker.com/engine/installation/#installation\n'
                 )
             );
-            this.abort = true;
+            this.cancelCancellableTasks();
         } else {
             const dockerVersion = stdout.split(' ')[2].replace(/,/g, '');
             const dockerVersionMajor = dockerVersion.split('.')[0];
@@ -61,7 +61,7 @@ function checkDocker() {
                                  Read http://docs.docker.com/engine/installation/#installation`
                     )
                 );
-                this.abort = true;
+                this.cancelCancellableTasks();
             } else {
                 this.log.ok('Docker is installed');
             }
@@ -106,7 +106,6 @@ function checkImageExist(opts = { cwd: './', appConfig: null }) {
  * @returns {Promise.<TResult>|Promise}
  */
 function checkAndBuildImages(opts = { cwd: './', forceBuild: false, appConfig: { buildTool: 'gradle' } }) {
-    if (this.abort) return null;
     checkImageExist.call(this, opts);
     const pwd = shelljs.pwd();
     shelljs.cd(opts.cwd);
@@ -115,7 +114,7 @@ function checkAndBuildImages(opts = { cwd: './', forceBuild: false, appConfig: {
             shelljs.cd(pwd);
             if (err) {
                 this.log.error(chalk.red(`The Docker image build failed. ${err}`));
-                this.abort = true;
+                this.cancelCancellableTasks();
                 reject();
             }
             resolve();

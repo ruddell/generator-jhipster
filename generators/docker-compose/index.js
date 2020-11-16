@@ -67,7 +67,6 @@ module.exports = class extends BaseDockerGenerator {
     }
 
     get prompting() {
-        if (this.abort) return undefined;
         return super.prompting;
     }
 
