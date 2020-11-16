@@ -39,7 +39,6 @@ module.exports = class extends BaseGenerator {
                 this.log(chalk.bold('Welcome to Google App Engine Generator'));
             },
             checkInstallation() {
-                if (this.abort) return;
                 const done = this.async();
 
                 shelljs.exec('gcloud version', { silent: true }, (code, stdout, err) => {
@@ -47,14 +46,13 @@ module.exports = class extends BaseGenerator {
                         this.log.error(
                             "You don't have the Cloud SDK (gcloud) installed. \nDownload it from https://cloud.google.com/sdk/install"
                         );
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                     }
                     done();
                 });
             },
 
             checkAppEngineJavaComponent() {
-                if (this.abort) return;
                 const done = this.async();
                 const component = 'app-engine-java';
 
@@ -121,7 +119,6 @@ module.exports = class extends BaseGenerator {
     get prompting() {
         return {
             askForPath() {
-                if (this.abort) return undefined;
                 if (this.applicationType !== 'gateway') return undefined;
                 const messageAskForPath = 'Enter the root directory where the microservices are located';
                 const prompts = [
@@ -177,7 +174,6 @@ module.exports = class extends BaseGenerator {
                 });
             },
             askForProjectId() {
-                if (this.abort) return;
                 const done = this.async();
                 const prompts = [
                     {
@@ -206,7 +202,6 @@ module.exports = class extends BaseGenerator {
             },
 
             askForLocation() {
-                if (this.abort) return;
                 const done = this.async();
 
                 shelljs.exec(
@@ -262,7 +257,6 @@ module.exports = class extends BaseGenerator {
             },
 
             askForServiceName() {
-                if (this.abort) return;
                 const done = this.async();
 
                 try {
@@ -289,7 +283,6 @@ module.exports = class extends BaseGenerator {
             },
 
             askForInstanceClass() {
-                if (this.abort) return;
                 const done = this.async();
 
                 const prompts = [
@@ -319,7 +312,6 @@ module.exports = class extends BaseGenerator {
             },
 
             askForScalingType() {
-                if (this.abort) return;
                 const done = this.async();
 
                 if (this.gaeInstanceClass.startsWith('F')) {
@@ -349,7 +341,6 @@ module.exports = class extends BaseGenerator {
             },
 
             askForInstances() {
-                if (this.abort) return;
                 const done = this.async();
 
                 const prompts = [];
@@ -418,7 +409,6 @@ module.exports = class extends BaseGenerator {
             },
 
             askIfCloudSqlIsNeeded() {
-                if (this.abort) return;
                 const done = this.async();
                 const prompts = [];
 
@@ -443,7 +433,6 @@ module.exports = class extends BaseGenerator {
 
             askForCloudSqlInstance() {
                 if (this.gaeCloudSQLInstanceNeeded === 'N') return;
-                if (this.abort) return;
                 if (this.prodDatabaseType !== 'mysql' && this.prodDatabaseType !== 'mariadb' && this.prodDatabaseType !== 'postgresql')
                     return;
 
@@ -483,7 +472,6 @@ module.exports = class extends BaseGenerator {
 
             promptForCloudSqlInstanceNameIfNeeded() {
                 if (this.gaeCloudSQLInstanceNeeded === 'N') return;
-                if (this.abort) return;
                 if (this.gcpCloudSqlInstanceName) return;
 
                 const done = this.async();
@@ -506,7 +494,6 @@ module.exports = class extends BaseGenerator {
 
             askForCloudSqlLogin() {
                 if (this.gaeCloudSQLInstanceNeeded === 'N') return;
-                if (this.abort) return;
                 if (!this.gcpCloudSqlInstanceName) return;
 
                 const done = this.async();
@@ -540,7 +527,6 @@ module.exports = class extends BaseGenerator {
 
             askForCloudSqlDatabaseName() {
                 if (this.gaeCloudSQLInstanceNeeded === 'N') return;
-                if (this.abort) return;
                 if (!this.gcpCloudSqlInstanceNameExists) return;
 
                 const done = this.async();
@@ -581,7 +567,6 @@ module.exports = class extends BaseGenerator {
 
             promptForCloudSqlDatabaseNameIfNeeded() {
                 if (this.gaeCloudSQLInstanceNeeded === 'N') return;
-                if (this.abort) return;
                 if (this.gcpCloudSqlInstanceName !== 'new' && this.gcpCloudSqlDatabaseName) return;
 
                 const done = this.async();
@@ -615,7 +600,6 @@ module.exports = class extends BaseGenerator {
             },
 
             configureProject() {
-                if (this.abort) return;
                 const done = this.async();
 
                 if (!this.gaeLocationExists) {
@@ -626,7 +610,7 @@ module.exports = class extends BaseGenerator {
                         (code, stdout, err) => {
                             if (err && code !== 0) {
                                 this.log.error(err);
-                                this.abort = true;
+                                this.cancelCancellableTasks();
                             }
 
                             done();
@@ -639,7 +623,6 @@ module.exports = class extends BaseGenerator {
 
             createCloudSqlInstance() {
                 if (this.gaeCloudSQLInstanceNeeded === 'N') return;
-                if (this.abort) return;
                 if (!this.gcpCloudSqlInstanceName) return;
                 if (this.gcpCloudSqlInstanceNameExists) return;
                 const done = this.async();
@@ -661,7 +644,7 @@ module.exports = class extends BaseGenerator {
 
                 shelljs.exec(cmd, { silent: true }, (code, stdout, err) => {
                     if (err && code !== 0) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.log.error(err);
                     }
 
@@ -677,7 +660,6 @@ module.exports = class extends BaseGenerator {
 
             createCloudSqlLogin() {
                 if (this.gaeCloudSQLInstanceNeeded === 'N') return;
-                if (this.abort) return;
                 if (!this.gcpCloudSqlInstanceName) return;
                 const done = this.async();
 
@@ -709,7 +691,6 @@ module.exports = class extends BaseGenerator {
 
             createCloudSqlDatabase() {
                 if (this.gaeCloudSQLInstanceNeeded === 'N') return;
-                if (this.abort) return;
                 if (!this.gcpCloudSqlInstanceName) return;
                 if (this.gcpCloudSqlDatabaseNameExists) return;
                 const done = this.async();
@@ -748,8 +729,6 @@ module.exports = class extends BaseGenerator {
     get writing() {
         return {
             copyFiles() {
-                if (this.abort) return;
-
                 this.log(chalk.bold('\nCreating Google App Engine deployment files'));
 
                 this.template('app.yaml.ejs', `${constants.MAIN_DIR}/appengine/app.yaml`);
@@ -763,7 +742,6 @@ module.exports = class extends BaseGenerator {
             },
 
             addDependencies() {
-                if (this.abort) return;
                 if (this.buildTool === 'maven') {
                     this.addMavenDependency('org.springframework.boot.experimental', 'spring-boot-thin-layout', '1.0.23.RELEASE');
                 }
@@ -785,7 +763,6 @@ module.exports = class extends BaseGenerator {
             },
 
             addGradlePlugin() {
-                if (this.abort) return;
                 if (this.buildTool === 'gradle') {
                     this.addGradlePlugin('com.google.cloud.tools', 'appengine-gradle-plugin', '2.2.0');
                     this.addGradlePlugin('org.springframework.boot.experimental', 'spring-boot-thin-gradle-plugin', '1.0.13.RELEASE');
@@ -794,7 +771,6 @@ module.exports = class extends BaseGenerator {
             },
 
             addMavenPlugin() {
-                if (this.abort) return;
                 if (this.buildTool === 'maven') {
                     this.render('pom-plugin.xml.ejs', rendered => {
                         this.addMavenPlugin('com.google.cloud.tools', 'appengine-maven-plugin', '2.2.0', rendered.trim());
@@ -813,7 +789,6 @@ module.exports = class extends BaseGenerator {
     get end() {
         return {
             productionBuild() {
-                if (this.abort) return;
                 // Until issue; https://github.com/GoogleCloudPlatform/app-gradle-plugin/issues/376 is fixed we shall disable .gcloudignore
                 this.log(
                     chalk.bold(
@@ -836,7 +811,7 @@ module.exports = class extends BaseGenerator {
 
                 const child = this.buildApplication(this.buildTool, 'prod', (err) => {
                     if (err) {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         this.log.error(err);
                     }
                     done();
@@ -852,7 +827,6 @@ module.exports = class extends BaseGenerator {
     }
 
     _defaultProjectId() {
-        if (this.abort) return null;
         if (this.gcpProjectId) {
             return this.gcpProjectId;
         }
