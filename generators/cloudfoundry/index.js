@@ -61,14 +61,12 @@ module.exports = class extends BaseGenerator {
             },
 
             copyCloudFoundryFiles() {
-                if (this.abort) return;
                 this.log(chalk.bold('\nCreating Cloud Foundry deployment files'));
                 this.template('manifest.yml.ejs', 'deploy/cloudfoundry/manifest.yml');
                 this.template('application-cloudfoundry.yml.ejs', `${constants.SERVER_MAIN_RES_DIR}config/application-cloudfoundry.yml`);
             },
 
             checkInstallation() {
-                if (this.abort) return;
                 const done = this.async();
 
                 exec('cf -v', err => {
@@ -77,7 +75,7 @@ module.exports = class extends BaseGenerator {
                             "cloudfoundry's cf command line interface is not available. " +
                                 'You can install it via https://github.com/cloudfoundry/cli/releases'
                         );
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                     }
                     done();
                 });
@@ -88,7 +86,7 @@ module.exports = class extends BaseGenerator {
     get default() {
         return {
             cloudfoundryAppShow() {
-                if (this.abort || typeof this.dist_repo_url !== 'undefined') return;
+                if (typeof this.dist_repo_url !== 'undefined') return;
                 const done = this.async();
 
                 this.log(chalk.bold('\nChecking for an existing Cloud Foundry hosting environment...'));
@@ -96,14 +94,14 @@ module.exports = class extends BaseGenerator {
                     // Unauthenticated
                     if (stdout.search('cf login') >= 0) {
                         this.log.error("Error: Not authenticated. Run 'cf login' to login to your cloudfoundry account and try again.");
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                     }
                     done();
                 });
             },
 
             cloudfoundryAppCreate() {
-                if (this.abort || typeof this.dist_repo_url !== 'undefined') return;
+                if (typeof this.dist_repo_url !== 'undefined') return;
                 const done = this.async();
 
                 this.log(chalk.bold('\nCreating your Cloud Foundry hosting environment, this may take a couple minutes...'));
@@ -126,7 +124,6 @@ module.exports = class extends BaseGenerator {
             },
 
             productionBuild() {
-                if (this.abort) return;
                 const done = this.async();
 
                 this.log(chalk.bold(`\nBuilding the application with the ${this.cloudfoundryProfile} profile`));
@@ -150,7 +147,6 @@ module.exports = class extends BaseGenerator {
     get end() {
         return {
             cloudfoundryPush() {
-                if (this.abort) return;
                 const done = this.async();
                 let cloudfoundryDeployCommand = 'cf push -f ./deploy/cloudfoundry/manifest.yml -t 120 -p';
                 let jarFolder = '';
@@ -182,7 +178,7 @@ module.exports = class extends BaseGenerator {
             },
 
             restartApp() {
-                if (this.abort || !this.cloudfoundry_remote_exists) return;
+                if (!this.cloudfoundry_remote_exists) return;
                 this.log(chalk.bold('\nRestarting your cloudfoundry app.\n'));
 
                 exec(`cf restart ${this.cloudfoundryDeployedName}`, (err, stdout, stderr) => {
