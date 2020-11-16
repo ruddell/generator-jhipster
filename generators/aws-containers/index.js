@@ -111,7 +111,6 @@ module.exports = class extends BaseGenerator {
             },
             checkDocker: docker.checkDocker,
             checkAwsCredentials() {
-                if (this.abort) return;
                 const done = this.async();
                 let profile = process.env.AWS_PROFILE;
                 if (!profile) {
@@ -140,7 +139,6 @@ module.exports = class extends BaseGenerator {
                 awsClient.CF().setOutputs(message => this.log(message));
             },
             fetchRegion() {
-                if (this.abort) return;
                 const done = this.async();
                 this.awsFacts = {
                     apps: [],
@@ -156,7 +154,7 @@ module.exports = class extends BaseGenerator {
                     })
                     .catch(err => {
                         this.log.error(err);
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
@@ -207,7 +205,7 @@ module.exports = class extends BaseGenerator {
                 if (this.deploymentApplicationType === 'monolith') return;
                 const done = this.async();
                 this.log.ok(chalk.green('EKS and ECRs created. Please use the Kubernetes Sub-generator (jhipster kubernetes) to deploy.`'));
-                this.abort = true;
+                this.cancelCancellableTasks();
                 done();
             },
             askRegion: prompts.askRegion,
@@ -264,7 +262,7 @@ module.exports = class extends BaseGenerator {
                 return Promise.all(promises)
                     .then(() => done())
                     .catch(() => {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
@@ -276,20 +274,16 @@ module.exports = class extends BaseGenerator {
     get configuring() {
         return {
             bonjour() {
-                if (this.abort) return;
                 this.log(chalk.bold('🔧🛠️ AWS configuring'));
             },
             purgeAwsApps() {
-                if (this.abort) return;
                 this.aws.apps = this.aws.apps.filter(app => this.appConfigs.find(conf => conf.baseName === app.baseName));
             },
             setBucketName() {
-                if (this.abort) return;
                 this.aws.s3BucketName =
                     this.aws.s3BucketName || awsClient.sanitizeBucketName(`${this.aws.cloudFormationName}_${new Date().getTime()}`);
             },
             getDockerLogin() {
-                if (this.abort) return null;
                 const done = this.async;
                 return awsClient
                     .getDockerLogin()
@@ -300,7 +294,7 @@ module.exports = class extends BaseGenerator {
                     })
                     .catch(error => {
                         this.log.error(error);
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
@@ -310,17 +304,14 @@ module.exports = class extends BaseGenerator {
     get default() {
         return {
             bonjour() {
-                if (this.abort) return;
                 this.log(chalk.bold('AWS default'));
             },
             updateBaseName() {
-                if (this.abort) return;
                 this.appConfigs.forEach(config => {
                     config.awsBaseName = config.baseName.toLowerCase().replace(/[^a-z^\d]/, '');
                 });
             },
             showAwsCacheWarning() {
-                if (this.abort) return;
                 this.appConfigs.forEach(config => {
                     if (config.cacheProvider !== 'no') {
                         this.log(
@@ -332,7 +323,6 @@ module.exports = class extends BaseGenerator {
                 });
             },
             addAWSSpringDependencies() {
-                if (this.abort) return;
                 this.appConfigs.forEach(config => {
                     const directory = `${this.directoryPath}${config.appFolder}`;
                     if (config.buildTool === 'maven') {
@@ -345,7 +335,6 @@ module.exports = class extends BaseGenerator {
                 });
             },
             setAuroraParameters() {
-                if (this.abort) return;
                 this.appConfigs.forEach(appConfig => {
                     const app = this.aws.apps.find(a => a.baseName === appConfig.baseName);
                     const postgresqlType = databaseTypes.POSTGRESQL;
@@ -360,7 +349,6 @@ module.exports = class extends BaseGenerator {
                 });
             },
             springProjectChanges() {
-                if (this.abort) return;
                 this.appConfigs.forEach(config => {
                     const directory = `${this.directoryPath}${config.appFolder}`;
                     this.temp = {
@@ -373,7 +361,6 @@ module.exports = class extends BaseGenerator {
                 });
             },
             generateCloudFormationTemplate() {
-                if (this.abort) return;
                 this.template(BASE_TEMPLATE_FILENAME, BASE_TEMPLATE_PATH);
                 this.aws.apps.forEach(config =>
                     this.template(APP_TEMPLATE_FILENAME, APP_TEMPLATE_PATH(config.baseName), null, {}, { aws: this.aws, app: config })
@@ -393,7 +380,6 @@ module.exports = class extends BaseGenerator {
     }
 
     _uploadTemplateToAWS(filename, path) {
-        if (this.abort) return null;
         const done = this.async;
 
         return awsClient
@@ -407,7 +393,7 @@ module.exports = class extends BaseGenerator {
             })
             .catch(error => {
                 this.log.error(error.message);
-                this.abort = true;
+                this.cancelCancellableTasks();
                 done();
             });
     }
@@ -415,7 +401,7 @@ module.exports = class extends BaseGenerator {
     get end() {
         return {
             checkAndBuildImages() {
-                if (this.abort || !this.deployNow || this.skipBuild) return null;
+                if (!this.deployNow || this.skipBuild) return null;
                 const done = this.async();
                 const cwd = process.cwd();
                 const promises = this.appConfigs.map(config =>
@@ -431,12 +417,12 @@ module.exports = class extends BaseGenerator {
                         done();
                     })
                     .catch(() => {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
             createS3Bucket() {
-                if (this.abort || !this.deployNow) return null;
+                if (!this.deployNow) return null;
                 const done = this.async;
                 return awsClient
                     .createS3Bucket(this.aws.s3BucketName, this.aws.region)
@@ -447,12 +433,12 @@ module.exports = class extends BaseGenerator {
                     })
                     .catch(error => {
                         this.log.error(`Could not create the S3 bucket : ${error.message}`);
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
             uploadBaseTemplate() {
-                if (this.abort || !this.deployNow) return null;
+                if (!this.deployNow) return null;
                 const done = this.async;
                 return this._uploadTemplateToAWS('base.template.yml', BASE_TEMPLATE_PATH).then(result => {
                     this.aws.s3BaseTemplate = result;
@@ -460,7 +446,7 @@ module.exports = class extends BaseGenerator {
                 });
             },
             uploadAppTemplate() {
-                if (this.abort || !this.deployNow) return null;
+                if (!this.deployNow) return null;
                 const done = this.async;
                 const promises = this.aws.apps.map(config =>
                     this._uploadTemplateToAWS(APP_TEMPLATE_PATH(config.baseName), APP_TEMPLATE_PATH(config.baseName))
@@ -469,12 +455,12 @@ module.exports = class extends BaseGenerator {
                 return Promise.all(promises)
                     .then(() => done())
                     .catch(() => {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
             createOrUpdateStack() {
-                if (this.abort || !this.deployNow) return null;
+                if (!this.deployNow) return null;
                 const done = this.async;
 
                 return awsClient
@@ -496,7 +482,7 @@ module.exports = class extends BaseGenerator {
                         return Promise.all(promises)
                             .then(() => done())
                             .catch(() => {
-                                this.abort = true;
+                                this.cancelCancellableTasks();
                                 done();
                             });
                     })
@@ -518,13 +504,13 @@ module.exports = class extends BaseGenerator {
                             })
                             .catch(error => {
                                 this.log.error(`There was an error creating the stack: ${error.message}`);
-                                this.abort = true;
+                                this.cancelCancellableTasks();
                                 done();
                             });
                     });
             },
             getElasticContainerRepositoryName() {
-                if (this.abort || !this.deployNow) return null;
+                if (!this.deployNow) return null;
                 const done = this.async;
 
                 const promises = this.aws.apps.map(app =>
@@ -537,14 +523,14 @@ module.exports = class extends BaseGenerator {
                         })
                         .catch(error => {
                             this.log.error(`Couldn't get ECR Repository Id for app ${chalk.bold(app.baseName)}: ${error.message}`);
-                            this.abort = true;
+                            this.cancelCancellableTasks();
                         })
                 );
 
                 return Promise.all(promises).then(() => done());
             },
             setSSMDatabasePassword() {
-                if (this.abort || !this.deployNow) return null;
+                if (!this.deployNow) return null;
                 const done = this.async;
 
                 const promises = this.aws.apps.map(app => {
@@ -568,12 +554,12 @@ module.exports = class extends BaseGenerator {
                 return Promise.all(promises)
                     .then(() => done())
                     .catch(() => {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
             getEcrRepositoryURI() {
-                if (this.abort || !this.deployNow) return null;
+                if (!this.deployNow) return null;
                 const done = this.async;
 
                 const promises = this.aws.apps.map(app =>
@@ -586,19 +572,19 @@ module.exports = class extends BaseGenerator {
                         })
                         .catch(error => {
                             this.log.error(`Couldn't get ECR URI for ${app.baseName} : ${error.message}`);
-                            this.abort = true;
+                            this.cancelCancellableTasks();
                         })
                 );
 
                 return Promise.all(promises)
                     .then(() => done())
                     .catch(() => {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
             tagDockerImage() {
-                if (this.abort || !this.deployNow || this.skipUpload) return null;
+                if (!this.deployNow || this.skipUpload) return null;
                 const done = this.async;
 
                 const promises = this.aws.apps.map(app => {
@@ -619,12 +605,12 @@ module.exports = class extends BaseGenerator {
                 return Promise.all(promises)
                     .then(() => done())
                     .catch(() => {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
             loginToAws() {
-                if (this.abort || !this.deployNow || this.skipUpload) return null;
+                if (!this.deployNow || this.skipUpload) return null;
                 const done = this.async;
                 return dockerCli
                     .loginToAws(
@@ -639,12 +625,12 @@ module.exports = class extends BaseGenerator {
                     })
                     .catch(() => {
                         this.log.error("Couldn't connect to AWS with Docker");
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
             pushDockerImage() {
-                if (this.abort || !this.deployNow || this.skipUpload) return null;
+                if (!this.deployNow || this.skipUpload) return null;
                 const done = this.async;
 
                 const promises = this.aws.apps.map(app => {
@@ -662,12 +648,12 @@ module.exports = class extends BaseGenerator {
                 return Promise.all(promises)
                     .then(() => done())
                     .catch(() => {
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },
             updateStack() {
-                if (this.abort || !this.deployNow) return null;
+                if (!this.deployNow) return null;
                 const done = this.async;
                 const databasePasswords = this.awsFacts.apps.map(a =>
                     awsClient.CF().cfParameter(`${a.baseName}DBPassword`, a.database_Password)
@@ -698,7 +684,7 @@ module.exports = class extends BaseGenerator {
                     .catch(error => {
                         this.log.error(`There was an error updating the stack: ${error.message}\n`);
                         this.log.error(error);
-                        this.abort = true;
+                        this.cancelCancellableTasks();
                         done();
                     });
             },

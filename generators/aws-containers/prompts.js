@@ -115,8 +115,6 @@ function _getFriendlyNameFromTag(awsObject) {
  * Ask user what type of application is to be created?
  */
 function askTypeOfApplication() {
-    if (this.abort) return null;
-
     const prompts = [
         {
             type: 'list',
@@ -142,7 +140,7 @@ function askTypeOfApplication() {
         if (applicationType) {
             this.log(applicationType);
         } else {
-            this.abort = true;
+            this.cancelCancellableTasks();
         }
     });
 }
@@ -151,7 +149,6 @@ function askTypeOfApplication() {
  * Ask user what type of Region is to be created?
  */
 function askRegion() {
-    if (this.abort) return null;
     const prompts = [
         {
             type: 'list',
@@ -167,7 +164,7 @@ function askRegion() {
         if (region) {
             this.aws.region = region;
         } else {
-            this.abort = true;
+            this.cancelCancellableTasks();
         }
     });
 }
@@ -176,7 +173,6 @@ function askRegion() {
  * Ask user for CloudFormation name.
  */
 function askCloudFormation() {
-    if (this.abort) return null;
     const prompts = [
         {
             type: 'input',
@@ -201,7 +197,7 @@ function askCloudFormation() {
             }
             this.log(`CloudFormation Stack name will be ${this.aws.cloudFormationName}`);
         } else {
-            this.abort = true;
+            this.cancelCancellableTasks();
         }
     });
 }
@@ -210,7 +206,7 @@ function askCloudFormation() {
  * As user to select AWS performance.
  */
 function askPerformances() {
-    if (this.abort || this.deploymentApplicationType === 'microservice') return null;
+    if (this.deploymentApplicationType === 'microservice') return null;
     const chainPromises = index => {
         if (index === this.appConfigs.length) {
             return null;
@@ -233,8 +229,6 @@ function askPerformances() {
 }
 
 function promptPerformance(config, awsConfig = { performance: 'low' }) {
-    if (this.abort) return null;
-
     const prodDatabaseType = config.prodDatabaseType;
 
     if (prodDatabaseType === databaseTypes.postgresql) {
@@ -278,7 +272,7 @@ function promptPerformance(config, awsConfig = { performance: 'low' }) {
  * Ask about scaling
  */
 function askScaling() {
-    if (this.abort || this.deploymentApplicationType === 'microservice') return null;
+    if (this.deploymentApplicationType === 'microservice') return null;
     const chainPromises = index => {
         if (index === this.appConfigs.length) {
             return null;
@@ -300,8 +294,6 @@ function askScaling() {
 }
 
 function promptScaling(config, awsConfig = { scaling: 'low' }) {
-    if (this.abort) return null;
-
     const scalingLevels = _(SCALING_TO_CONFIG)
         .keys()
         .map(key => {
@@ -332,8 +324,6 @@ function promptScaling(config, awsConfig = { scaling: 'low' }) {
  * Ask user to select target Virtual Private Network
  */
 function askVPC() {
-    if (this.abort) return null;
-
     const vpcList = this.awsFacts.availableVpcs.map(vpc => {
         const friendlyName = _getFriendlyNameFromTag(vpc);
         return {
@@ -359,7 +349,7 @@ function askVPC() {
             this.aws.vpc.id = targetVPC;
             this.aws.vpc.cidr = _.find(this.awsFacts.availableVpcs, ['VpcId', targetVPC]).CidrBlock;
         } else {
-            this.abort = true;
+            this.cancelCancellableTasks();
         }
     });
 }
@@ -368,8 +358,6 @@ function askVPC() {
  * Ask user to select availability information (availability, zones)/
  */
 function askForSubnets() {
-    if (this.abort) return null;
-
     const subnetList = _.map(this.awsFacts.availableSubnets, sn => {
         const friendlyName = _getFriendlyNameFromTag(sn);
         const formattedFriendlyName = friendlyName ? `name: '${friendlyName}', ` : '';
@@ -431,7 +419,6 @@ function askForSubnets() {
 }
 
 function askForDBPasswords() {
-    if (this.abort) return null;
     const chainPromises = index => {
         if (index === this.appConfigs.length) {
             return null;
@@ -473,7 +460,7 @@ function promptDBPassword(config) {
  * Create EKS stack for Micro-Services
  */
 function promptEKSClusterCreation() {
-    if (this.abort || this.deploymentApplicationType === 'monolith') return null;
+    if (this.deploymentApplicationType === 'monolith') return null;
     const prompts = [
         {
             type: 'input',
@@ -567,7 +554,6 @@ function promptEKSClusterCreation() {
  * Ask user if they would like to deploy now?
  */
 function askDeployNow() {
-    if (this.abort) return null;
     const prompts = [
         {
             type: 'confirm',
