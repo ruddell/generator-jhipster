@@ -28,7 +28,7 @@ launchE2eTests() {
         result=0
         if [[ -f "tsconfig.json" ]]; then
             sed -i.backup "s~\"retries\": 2~\"projectId\": \"$CYPRESS_PROJECT_ID\"~g" cypress.json
-            npm run e2e:headless -- --record
+            npm run e2e:headless
         fi
         result=$?
         [ $result -eq 0 ] && break
