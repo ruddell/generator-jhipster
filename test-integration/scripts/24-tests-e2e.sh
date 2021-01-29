@@ -27,7 +27,8 @@ launchE2eTests() {
     do
         result=0
         if [[ -f "tsconfig.json" ]]; then
-            npm run e2e:headless
+            sed -i.backup "s~\"retries\": 2~\"projectId\": \"$CYPRESS_PROJECT_ID\"~g" cypress.json
+            npm run e2e:headless -- --record
         fi
         result=$?
         [ $result -eq 0 ] && break
@@ -38,7 +39,6 @@ launchE2eTests() {
     return $result
     return $?
 }
-
 launchCurlTests() {
     endpointsToTest=("$@")
     retryCount=1
