@@ -101,6 +101,38 @@ jobs:
           - react-gradle-h2mem-memcached
           - react-maven-h2mem-memcached
           - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
         include:
           - app-type: react-maven-h2mem-memcached
             entity: sql
