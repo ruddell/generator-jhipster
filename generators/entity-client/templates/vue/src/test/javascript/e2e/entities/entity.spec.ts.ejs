@@ -211,7 +211,7 @@ describe('<%= entityClass %> e2e test', () => {
         await click(deleteButton);
 
         deleteDialog = new <%= entityClass %>DeleteDialog();
-        await waitUntilDisplayed(deleteDialog.dialog);
+        await waitUntilDisplayed(deleteDialog.title);
 
         expect(await deleteDialog.title.getAttribute('id')).to.match(/<%= i18nKeyPrefix %>.delete.question/);
 
