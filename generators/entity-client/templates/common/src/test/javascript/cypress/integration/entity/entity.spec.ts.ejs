@@ -220,6 +220,7 @@ describe('<%= entityClass %> e2e test', () => {
         cy.get(entityDeleteButtonSelector).last().click({force: true});
         <%_ if (clientFramework === 'react') { _%>
         cy.wait('@dialogDeleteRequest');
+        cy.get(`[data-cy="entityDeleteDialogLoading"]`).should('not.exist');
         <%_ } _%>
         cy.getEntityDeleteDialogHeading('<%= entityInstance %>').should('exist');
         cy.get(entityConfirmDeleteButtonSelector).click({force: true});

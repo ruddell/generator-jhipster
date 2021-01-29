@@ -83,50 +83,29 @@ jobs:
         os: [ubuntu-20.04]
         cache: [react]
         app-type:
-          - react-default
-          - react-maven-mysql-es-noi18n-mapsid
           - react-maven-h2mem-memcached
-          - react-maven-cassandra-session-redis
-          # - react-maven-couchbase-caffeine
-          - react-gradle-mysql-es-noi18n-mapsid
           - react-gradle-h2mem-memcached
-          - react-gradle-cassandra-session-redis
-          # - react-gradle-couchbase-caffeine
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
+          - react-maven-h2mem-memcached
+          - react-gradle-h2mem-memcached
         include:
-          - app-type: react-default
-            entity: sql
-            environment: prod
-            war: 0
-            e2e: 1
-            testcontainers: 0
-          - app-type: react-maven-mysql-es-noi18n-mapsid
-            entity: sqlfull
-            environment: prod
-            war: 0
-            e2e: 1
-            testcontainers: 1
           - app-type: react-maven-h2mem-memcached
             entity: sql
             environment: prod
             war: 0 # TODO: need change to 1, when maven+war is fixed
-            e2e: 1
-            testcontainers: 0
-          - app-type: react-maven-cassandra-session-redis
-            entity: cassandra
-            environment: prod
-            war: 0
-            e2e: 1
-            testcontainers: 1
-          # - app-type: react-maven-couchbase-caffeine
-          #   entity: couchbase
-          #   environment: prod
-          #   war: 0
-          #   e2e: 0
-          #   testcontainers: 0
-          - app-type: react-gradle-mysql-es-noi18n-mapsid
-            entity: sqlfull
-            environment: prod
-            war: 0
             e2e: 1
             testcontainers: 0
           - app-type: react-gradle-h2mem-memcached
@@ -135,18 +114,6 @@ jobs:
             war: 1
             e2e: 1
             testcontainers: 0
-          - app-type: react-gradle-cassandra-session-redis
-            entity: cassandra
-            environment: prod
-            war: 0
-            e2e: 1
-            testcontainers: 1
-          # - app-type: react-gradle-couchbase-caffeine
-          #   entity: couchbase
-          #   environment: prod
-          #   war: 0
-          #   e2e: 1
-          #   testcontainers: 0
     env:
       JHI_GENERATE_SKIP_CONFIG: 1
       JHI_ENTITY: ${{ matrix.entity }}
@@ -322,12 +289,14 @@ jobs:
         with:
           name: log-${{ matrix.app-type }}
           path: ${{ github.workspace }}/app/build/test-results/**/*.xml
-      - name: 'E2E: Store failure screenshots'
+      - name: 'E2E: Store failure artifacts'
         uses: actions/upload-artifact@v2
         if: always() && steps.e2e.outcome == 'failure'
         with:
-          name: screenshots-${{ matrix.app-type }}
-          path: ${{ github.workspace }}/app/*/cypress/screenshots
+          name: e2e-artifacts-${{ matrix.app-type }}
+          path: |
+            ${{ github.workspace }}/app/*/cypress/screenshots
+            ${{ github.workspace }}/app/*/cypress/videos
       - name: 'ANALYSIS: Sonar analysis'
         if: steps.tests-should-be-skipped.outputs.skip-tests != 'true'
         run: $JHI_SCRIPTS/25-sonar-analyze.sh
