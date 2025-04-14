@@ -23,7 +23,7 @@
     "@types/jest": "27.0.3",
     "@types/node": "16.11.12",
     "@types/sinon": "10.0.6",
-    "@types/vuelidate": "0.7.15",
+    "@types/vuelidate": "0.7.22",
     "@typescript-eslint/eslint-plugin": "5.6.0",
     "@typescript-eslint/parser": "5.6.0",
     "@vue/eslint-config-prettier": "6.0.0",
