@@ -117,7 +117,7 @@
     "yeoman-generator": "5.4.2"
   },
   "devDependencies": {
-    "chai": "4.3.4",
+    "chai": "6.2.2",
     "ejs-lint": "1.2.1",
     "eslint": "8.4.0",
     "eslint-config-airbnb-base": "15.0.0",
